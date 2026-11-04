@@ -107,6 +107,31 @@ export default function Dashboard() {
         )}
       </StatusCard>
 
+      <StatusCard
+        title="Tables & embedded images"
+        badge={!capabilities?.multimodal ? "Unknown" : capabilities.multimodal.auto_multimodal ? "Automatic" : "Manual"}
+        tone={!capabilities?.multimodal ? "idle" : "ok"}
+      >
+        {!capabilities?.multimodal && <p>Status unavailable until the backend responds.</p>}
+        {capabilities?.multimodal && (
+          <>
+            <p>
+              {capabilities.multimodal.table_engine} &middot; images smaller than{" "}
+              {capabilities.multimodal.min_image_side_px} px are skipped &middot; up to{" "}
+              {capabilities.multimodal.max_images_per_document} images and {capabilities.multimodal.max_tables_per_document}{" "}
+              tables per document.
+            </p>
+            <p className="text-xs text-slate-400">
+              {capabilities.multimodal.auto_multimodal
+                ? "Runs automatically after text extraction."
+                : "Run it per document from the document page."}{" "}
+              Image OCR is {capabilities.multimodal.image_ocr_default ? "on" : "off"} by default and needs Tesseract.
+              Image content is never interpreted. Detection accuracy: Not yet evaluated.
+            </p>
+          </>
+        )}
+      </StatusCard>
+
       <PhaseRoadmap />
 
       <p className="text-xs text-slate-400">

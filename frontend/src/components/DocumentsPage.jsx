@@ -3,7 +3,7 @@ import { getUploadPolicy, listDocuments, startProcessing } from "../api/client.j
 import UploadPanel from "./UploadPanel.jsx";
 import DocumentList from "./DocumentList.jsx";
 import DocumentDetail from "./DocumentDetail.jsx";
-import { IN_PROGRESS } from "../utils/processing.js";
+import { inProgress } from "../utils/processing.js";
 
 const PAGE_SIZE = 20;
 
@@ -46,7 +46,7 @@ export default function DocumentsPage() {
   async function handleUploaded(created) {
     setNotice(null);
     try {
-      await startProcessing(created.id); // extraction starts automatically after upload
+      await startProcessing(created.id); // text extraction, then tables and images, start automatically after upload
     } catch (err) {
       setNotice(`The file was uploaded, but text extraction could not be started: ${err.message}`);
     }
@@ -58,7 +58,7 @@ export default function DocumentsPage() {
   const refreshList = useCallback(() => load(offset), [load, offset]);
 
   // Keep the list current while any document is queued or processing (e.g. right after an upload).
-  const anyInProgress = data?.items?.some((d) => IN_PROGRESS.includes(d.processing_status)) ?? false;
+  const anyInProgress = data?.items?.some(inProgress) ?? false;
   useEffect(() => {
     if (!anyInProgress) return undefined;
     const timer = setTimeout(() => load(offset), 2000);

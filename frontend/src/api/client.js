@@ -44,6 +44,18 @@ export const listPages = (id, opts) => request(`${docPath(id)}/pages`, opts);
 export const getPage = (id, pageNumber, opts) => request(`${docPath(id)}/pages/${pageNumber}`, opts);
 export const getCapabilities = (opts) => request("/processing/capabilities", opts);
 
+// Phase 4: tables and embedded images
+export const startMultimodal = (id, { imageOcr } = {}, opts) =>
+  request(`${docPath(id)}/multimodal${imageOcr == null ? "" : `?image_ocr=${imageOcr}`}`, { ...opts, method: "POST" });
+export const getMultimodalStatus = (id, opts) => request(`${docPath(id)}/multimodal`, opts);
+export const listTables = (id, opts) => request(`${docPath(id)}/tables`, opts);
+export const getTable = (id, tableId, opts) => request(`${docPath(id)}/tables/${encodeURIComponent(tableId)}`, opts);
+export const listImages = (id, opts) => request(`${docPath(id)}/images`, opts);
+export const getImage = (id, imageId, opts) => request(`${docPath(id)}/images/${encodeURIComponent(imageId)}`, opts);
+// URLs used directly as <img src>
+export const imageFileUrl = (id, imageId) => `/api${docPath(id)}/images/${encodeURIComponent(imageId)}/file`;
+export const pagePreviewUrl = (id, pageNumber) => `/api${docPath(id)}/pages/${pageNumber}/preview`;
+
 // fetch() cannot report upload progress, so uploads use XMLHttpRequest.
 export function uploadDocument(file, onProgress) {
   return new Promise((resolve, reject) => {

@@ -38,3 +38,21 @@ export const PAGE_DOT = {
   needs_ocr: "bg-amber-500",
   failed: "bg-rose-500",
 };
+
+// Phase 4
+export const IMAGE_STATUS_LABELS = { extracted: "Extracted", failed: "Not extracted" };
+
+export const IMAGE_OCR_LABELS = {
+  not_requested: "Image OCR not requested",
+  completed: "Text found in image (OCR)",
+  no_text: "No text found in image",
+  skipped_page_scan: "Full-page scan (text handled by page OCR)",
+  unavailable: "OCR unavailable",
+  failed: "OCR failed",
+};
+
+export const TABLE_METHOD_LABELS = { pymupdf_find_tables: "PyMuPDF table detection (heuristic)" };
+
+export function inProgress(doc) {
+  return IN_PROGRESS.includes(doc.processing_status) || IN_PROGRESS.includes(doc.multimodal_status);
+}

@@ -34,6 +34,7 @@ export default function DocumentList({ data, loading, error, selectedId, onSelec
                 <th className="px-3 py-2 font-medium">Size</th>
                 <th className="px-3 py-2 font-medium">Uploaded</th>
                 <th className="px-3 py-2 font-medium">Processing</th>
+                <th className="px-3 py-2 font-medium">Tables / images</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -61,6 +62,13 @@ export default function DocumentList({ data, loading, error, selectedId, onSelec
                   <td className="whitespace-nowrap px-3 py-2 text-slate-600">{formatDateTime(doc.uploaded_at)}</td>
                   <td className="px-3 py-2">
                     <StatusBadge status={doc.processing_status} />
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-2 text-slate-600">
+                    {doc.table_count == null ? (
+                      <StatusBadge status={doc.multimodal_status} />
+                    ) : (
+                      `${doc.table_count} / ${doc.image_count}`
+                    )}
                   </td>
                 </tr>
               ))}

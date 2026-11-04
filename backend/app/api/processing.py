@@ -16,9 +16,11 @@ from app.schemas.processing import (
     PageSummary,
     ProcessAccepted,
     ProcessingStatusOut,
+    MultimodalCapability,
     TesseractCapability,
 )
 from app.services import documents as document_service
+from app.services import multimodal as multimodal_service
 from app.services import processing as processing_service
 from document_processing import check_tesseract
 
@@ -41,7 +43,7 @@ def _require_document(session: Session, document_id: uuid.UUID) -> Document:
     "/{document_id}/process",
     response_model=ProcessAccepted,
     status_code=status.HTTP_202_ACCEPTED,
-    summary="Start (or restart) text extraction + OCR for a document",
+    summary="Start (or restart) text extraction + OCR (then tables and images, if AUTO_MULTIMODAL is on)",
 )
 def start_processing(
     document_id: uuid.UUID,
@@ -55,7 +57,7 @@ def start_processing(
             status_code=409,
             detail={"code": "processing_in_progress", "message": "This document is already being processed."},
         )
-    background_tasks.add_task(processing_service.run_processing, session_factory, get_settings(), document_id)
+    background_tasks.add_task(multimodal_service.run_pipeline, session_factory, get_settings(), document_id)
     return ProcessAccepted(document_id=document_id, processing_status="queued")
 
 
@@ -110,4 +112,13 @@ def capabilities() -> Capabilities:
         min_text_chars_per_page=settings.min_text_chars_per_page,
         ocr_dpi=settings.ocr_dpi,
         max_pdf_pages=settings.max_pdf_pages,
+        multimodal=MultimodalCapability(
+            table_engine=f"PyMuPDF {pymupdf.__version__} Page.find_tables",
+            auto_multimodal=settings.auto_multimodal,
+            image_ocr_default=settings.image_ocr,
+            min_image_side_px=settings.min_image_side_px,
+            max_images_per_document=settings.max_images_per_document,
+            max_tables_per_document=settings.max_tables_per_document,
+            max_image_bytes=settings.max_image_bytes,
+        ),
     )

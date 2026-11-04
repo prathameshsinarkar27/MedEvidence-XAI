@@ -14,6 +14,7 @@ from app.core.config import RESEARCH_DISCLAIMER, get_settings
 from app.core.logging import configure_logging
 from app.core.middleware import UploadSizeLimitMiddleware
 from app.db.session import get_engine
+from app.services import multimodal as multimodal_service
 from app.services import processing as processing_service
 from app.services.upload_validation import UploadValidationError
 
@@ -26,9 +27,13 @@ def _recover_interrupted_processing() -> None:
         engine = get_engine()
         if engine is None:
             return
-        count = processing_service.recover_interrupted(sessionmaker(bind=engine))
+        factory = sessionmaker(bind=engine)
+        count = processing_service.recover_interrupted(factory)
         if count:
             logger.warning("Marked %d interrupted document(s) as failed", count)
+        count = multimodal_service.recover_interrupted_multimodal(factory)
+        if count:
+            logger.warning("Marked %d interrupted table/image run(s) as failed", count)
     except Exception as exc:  # database may be down or not yet migrated; health endpoint reports that
         logger.warning("Skipped interrupted-processing recovery (%s)", type(exc).__name__)
 
