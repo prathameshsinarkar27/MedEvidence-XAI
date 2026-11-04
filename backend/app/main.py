@@ -3,13 +3,16 @@
 import logging
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from app import __version__
 from app.api.router import api_router
 from app.core.config import RESEARCH_DISCLAIMER, get_settings
 from app.core.logging import configure_logging
+from app.core.middleware import UploadSizeLimitMiddleware
+from app.services.upload_validation import UploadValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -33,12 +36,21 @@ def create_app() -> FastAPI:
         description=RESEARCH_DISCLAIMER,
         lifespan=lifespan,
     )
+    app.add_middleware(UploadSizeLimitMiddleware)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origin_list,
-        allow_methods=["GET"],
+        allow_methods=["GET", "POST"],
         allow_headers=["*"],
     )
+
+    @app.exception_handler(UploadValidationError)
+    async def _upload_validation_handler(_: Request, exc: UploadValidationError) -> JSONResponse:
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"detail": {"code": exc.code, "message": exc.message}},
+        )
+
     app.include_router(api_router)
     return app
 
