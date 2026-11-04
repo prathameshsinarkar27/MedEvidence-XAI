@@ -17,10 +17,10 @@ function errorFromBody(body, status) {
   return new ApiError(`Backend returned HTTP ${status}.`, status);
 }
 
-async function request(path, { signal } = {}) {
+async function request(path, { signal, method = "GET" } = {}) {
   let response;
   try {
-    response = await fetch(`/api${path}`, { signal });
+    response = await fetch(`/api${path}`, { signal, method });
   } catch (err) {
     if (err.name === "AbortError") throw err;
     throw new ApiError("Cannot reach the backend API.", 0);
@@ -35,6 +35,14 @@ export const getUploadPolicy = (opts) => request("/documents/upload-policy", opt
 export const listDocuments = ({ limit = 20, offset = 0 } = {}, opts) =>
   request(`/documents?limit=${limit}&offset=${offset}`, opts);
 export const getDocument = (id, opts) => request(`/documents/${encodeURIComponent(id)}`, opts);
+
+// Phase 3: text extraction + OCR
+const docPath = (id) => `/documents/${encodeURIComponent(id)}`;
+export const startProcessing = (id, opts) => request(`${docPath(id)}/process`, { ...opts, method: "POST" });
+export const getProcessingStatus = (id, opts) => request(`${docPath(id)}/processing`, opts);
+export const listPages = (id, opts) => request(`${docPath(id)}/pages`, opts);
+export const getPage = (id, pageNumber, opts) => request(`${docPath(id)}/pages/${pageNumber}`, opts);
+export const getCapabilities = (opts) => request("/processing/capabilities", opts);
 
 // fetch() cannot report upload progress, so uploads use XMLHttpRequest.
 export function uploadDocument(file, onProgress) {

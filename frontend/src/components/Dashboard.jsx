@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { getHealth } from "../api/client.js";
+import { getCapabilities, getHealth } from "../api/client.js";
 import StatusCard from "./StatusCard.jsx";
 import PhaseRoadmap from "./PhaseRoadmap.jsx";
 
@@ -8,6 +8,7 @@ const DB_TONE = { connected: "ok", unreachable: "bad", not_configured: "warn" };
 export default function Dashboard() {
   const [health, setHealth] = useState(null);
   const [error, setError] = useState(null);
+  const [capabilities, setCapabilities] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async (signal) => {
@@ -15,6 +16,7 @@ export default function Dashboard() {
     try {
       setHealth(await getHealth({ signal }));
       setError(null);
+      setCapabilities(await getCapabilities({ signal }).catch(() => null));
     } catch (err) {
       if (err.name === "AbortError") return;
       setHealth(null);
@@ -77,6 +79,33 @@ export default function Dashboard() {
           {!db && <p>Status unavailable until the backend responds.</p>}
         </StatusCard>
       </div>
+
+      <StatusCard
+        title="PDF extraction & OCR"
+        badge={!capabilities ? "Unknown" : capabilities.ocr.available ? "OCR ready" : "OCR not set up"}
+        tone={!capabilities ? "idle" : capabilities.ocr.available ? "ok" : "bad"}
+      >
+        {!capabilities && <p>Status unavailable until the backend responds.</p>}
+        {capabilities && (
+          <>
+            <p>
+              Text layer: {capabilities.pdf_engine} &middot; OCR:{" "}
+              {capabilities.ocr.available ? `Tesseract ${capabilities.ocr.version}` : "Tesseract unavailable"}
+              {" "}({capabilities.ocr.requested_languages.join(", ")})
+            </p>
+            {capabilities.ocr.message && (
+              <p role="alert" className="rounded-md border border-rose-300 bg-rose-50 px-3 py-2 text-rose-900">
+                {capabilities.ocr.message}
+              </p>
+            )}
+            <p className="text-xs text-slate-400">
+              Pages with fewer than {capabilities.min_text_chars_per_page} characters are sent to OCR &middot; OCR
+              at {capabilities.ocr_dpi} dpi &middot; max {capabilities.max_pdf_pages} pages per PDF. Text-only PDFs
+              work without Tesseract.
+            </p>
+          </>
+        )}
+      </StatusCard>
 
       <PhaseRoadmap />
 

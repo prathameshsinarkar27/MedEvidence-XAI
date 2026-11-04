@@ -6,15 +6,31 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from sqlalchemy.orm import sessionmaker
 
 from app import __version__
 from app.api.router import api_router
 from app.core.config import RESEARCH_DISCLAIMER, get_settings
 from app.core.logging import configure_logging
 from app.core.middleware import UploadSizeLimitMiddleware
+from app.db.session import get_engine
+from app.services import processing as processing_service
 from app.services.upload_validation import UploadValidationError
 
 logger = logging.getLogger(__name__)
+
+
+def _recover_interrupted_processing() -> None:
+    """Documents left queued/processing by a previous run can never finish; mark them failed."""
+    try:
+        engine = get_engine()
+        if engine is None:
+            return
+        count = processing_service.recover_interrupted(sessionmaker(bind=engine))
+        if count:
+            logger.warning("Marked %d interrupted document(s) as failed", count)
+    except Exception as exc:  # database may be down or not yet migrated; health endpoint reports that
+        logger.warning("Skipped interrupted-processing recovery (%s)", type(exc).__name__)
 
 
 @asynccontextmanager
@@ -24,6 +40,8 @@ async def lifespan(app: FastAPI):
     logger.info("Starting %s v%s (env=%s)", settings.app_name, __version__, settings.app_env)
     if not settings.database_url:
         logger.warning("DATABASE_URL is not set; database features are unavailable")
+    else:
+        _recover_interrupted_processing()
     yield
     logger.info("Shutting down %s", settings.app_name)
 

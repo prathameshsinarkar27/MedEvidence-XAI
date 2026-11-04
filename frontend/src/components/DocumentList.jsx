@@ -1,9 +1,5 @@
 import { formatBytes, formatDateTime } from "../utils/format.js";
-
-const STATUS_STYLES = {
-  uploaded: "bg-emerald-100 text-emerald-800",
-  failed: "bg-rose-100 text-rose-800",
-};
+import StatusBadge from "./StatusBadge.jsx";
 
 export default function DocumentList({ data, loading, error, selectedId, onSelect, onPage }) {
   const items = data?.items ?? [];
@@ -34,9 +30,10 @@ export default function DocumentList({ data, loading, error, selectedId, onSelec
             <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
               <tr>
                 <th className="px-5 py-2 font-medium">File</th>
+                <th className="px-3 py-2 font-medium">Pages</th>
                 <th className="px-3 py-2 font-medium">Size</th>
                 <th className="px-3 py-2 font-medium">Uploaded</th>
-                <th className="px-3 py-2 font-medium">Status</th>
+                <th className="px-3 py-2 font-medium">Processing</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -59,16 +56,11 @@ export default function DocumentList({ data, loading, error, selectedId, onSelec
                       {doc.original_filename}
                     </button>
                   </td>
+                  <td className="px-3 py-2 text-slate-600">{doc.page_count ?? "—"}</td>
                   <td className="whitespace-nowrap px-3 py-2 text-slate-600">{formatBytes(doc.file_size_bytes)}</td>
                   <td className="whitespace-nowrap px-3 py-2 text-slate-600">{formatDateTime(doc.uploaded_at)}</td>
                   <td className="px-3 py-2">
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                        STATUS_STYLES[doc.upload_status] ?? "bg-slate-100 text-slate-700"
-                      }`}
-                    >
-                      {doc.upload_status}
-                    </span>
+                    <StatusBadge status={doc.processing_status} />
                   </td>
                 </tr>
               ))}

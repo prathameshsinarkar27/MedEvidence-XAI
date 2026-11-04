@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
-import { getUploadPolicy, listDocuments } from "../api/client.js";
+import { getUploadPolicy, listDocuments, startProcessing } from "../api/client.js";
 import UploadPanel from "./UploadPanel.jsx";
 import DocumentList from "./DocumentList.jsx";
 import DocumentDetail from "./DocumentDetail.jsx";
+import { IN_PROGRESS } from "../utils/processing.js";
 
 const PAGE_SIZE = 20;
 
@@ -13,6 +14,7 @@ export default function DocumentsPage() {
   const [error, setError] = useState(null);
   const [offset, setOffset] = useState(0);
   const [selectedId, setSelectedId] = useState(null);
+  const [notice, setNotice] = useState(null);
 
   const load = useCallback(async (pageOffset, signal) => {
     setLoading(true);
@@ -41,26 +43,45 @@ export default function DocumentsPage() {
     return () => controller.abort();
   }, [load, offset]);
 
-  function handleUploaded(created) {
+  async function handleUploaded(created) {
+    setNotice(null);
+    try {
+      await startProcessing(created.id); // extraction starts automatically after upload
+    } catch (err) {
+      setNotice(`The file was uploaded, but text extraction could not be started: ${err.message}`);
+    }
     setSelectedId(created.id);
     if (offset === 0) load(0);
     else setOffset(0);
   }
 
+  const refreshList = useCallback(() => load(offset), [load, offset]);
+
+  // Keep the list current while any document is queued or processing (e.g. right after an upload).
+  const anyInProgress = data?.items?.some((d) => IN_PROGRESS.includes(d.processing_status)) ?? false;
+  useEffect(() => {
+    if (!anyInProgress) return undefined;
+    const timer = setTimeout(() => load(offset), 2000);
+    return () => clearTimeout(timer);
+  }, [anyInProgress, data, load, offset]);
+
   return (
     <div className="space-y-6">
       <UploadPanel policy={policy} onUploaded={handleUploaded} />
-      <div className="grid gap-6 lg:grid-cols-[3fr_2fr]">
-        <DocumentList
-          data={data}
-          loading={loading}
-          error={error}
-          selectedId={selectedId}
-          onSelect={setSelectedId}
-          onPage={setOffset}
-        />
-        <DocumentDetail documentId={selectedId} />
-      </div>
+      {notice && (
+        <p role="alert" className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+          {notice}
+        </p>
+      )}
+      <DocumentList
+        data={data}
+        loading={loading}
+        error={error}
+        selectedId={selectedId}
+        onSelect={setSelectedId}
+        onPage={setOffset}
+      />
+      <DocumentDetail documentId={selectedId} onProcessingChange={refreshList} />
     </div>
   );
 }
