@@ -4,6 +4,7 @@ import logging
 from dataclasses import dataclass
 from functools import lru_cache
 
+from fastapi import HTTPException
 from sqlalchemy import Engine, create_engine, text
 from sqlalchemy.engine import make_url
 from sqlalchemy.exc import SQLAlchemyError
@@ -31,10 +32,13 @@ def get_engine() -> Engine | None:
 
 
 def get_session():
-    """FastAPI dependency yielding a DB session (used from Phase 2 onwards)."""
+    """FastAPI dependency yielding a DB session (503 if DATABASE_URL is not configured)."""
     engine = get_engine()
     if engine is None:
-        raise RuntimeError("DATABASE_URL is not configured")
+        raise HTTPException(
+            status_code=503,
+            detail={"code": "database_not_configured", "message": "The database is not configured."},
+        )
     factory = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
     session: Session = factory()
     try:

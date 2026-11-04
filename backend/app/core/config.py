@@ -37,6 +37,11 @@ class Settings(BaseSettings):
     # Intentionally has no default: credentials must come from the environment.
     database_url: str | None = Field(default=None)
 
+    # Phase 2: document upload. Files are stored under UPLOAD_DIR (relative paths
+    # are resolved against the repository root).
+    upload_dir: str = "data/uploads"
+    max_upload_size_mb: int = Field(default=25, ge=1, le=200)
+
     @field_validator("log_level")
     @classmethod
     def _validate_log_level(cls, value: str) -> str:
@@ -48,6 +53,15 @@ class Settings(BaseSettings):
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+
+    @property
+    def max_upload_size_bytes(self) -> int:
+        return self.max_upload_size_mb * 1024 * 1024
+
+    @property
+    def upload_dir_path(self) -> Path:
+        path = Path(self.upload_dir)
+        return path if path.is_absolute() else REPO_ROOT / path
 
     @property
     def log_dir_path(self) -> Path | None:
