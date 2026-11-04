@@ -9,10 +9,10 @@ Final-year B.Tech (CSE, AI & ML) project. The long-term goal is to turn uploaded
 traceable evidence and answer questions only when the evidence supports them:
 `answer → evidence → source document → page/region → confidence → reason`.
 
-## Current status: 3 — PDF text extraction + OCR
+## Current status: 4 — multimodal document processing
 
 > **New here? Start with [`docs/execution-steps.md`](docs/execution-steps.md)**, the step-by-step guide for
-> installing, running and checking Phases 1-3.
+> installing, running and checking Phases 1-4.
 
 - **1:** repository layout, FastAPI backend, React + Vite + Tailwind frontend, `.env` configuration,
   PostgreSQL connection, Alembic migrations, health-check API, status dashboard, logging.
@@ -24,20 +24,25 @@ traceable evidence and answer questions only when the evidence supports them:
   Tesseract OCR fallback with clear setup errors, per-page method/status, processing status API, page content API,
   extracted-text viewer. Method: [`docs/pdf-extraction-ocr.md`](docs/pdf-extraction-ocr.md).
 
-**Not implemented yet**: tables/images, clinical extraction, embeddings, retrieval, QA.
-Nothing has been evaluated, including extraction and OCR accuracy ("Not yet evaluated").
+- **4:** table detection (rows, columns, cells, page, table ID, source box), embedded-image extraction (metadata,
+  file, page, placement box), optional OCR of text printed inside images, a page preview with the source region
+  highlighted, and APIs/UI to inspect tables, images, source page and region. Images are never interpreted (no
+  medical-image analysis). Method: [`docs/multimodal-processing.md`](docs/multimodal-processing.md).
+
+**Not implemented yet**: clinical extraction, embeddings, retrieval, QA.
+Nothing has been evaluated, including extraction, OCR and table/image detection accuracy ("Not yet evaluated").
 
 ## Repository layout
 
 ```
 backend/              FastAPI app, Alembic migrations
 frontend/             React + Vite + Tailwind dashboard
-document_processing/  PDF text extraction + OCR library (pure Python)
+document_processing/  PDF text, OCR, table and image extraction library (pure Python)
 database/             (placeholder for DB assets)
 tests/                pytest suite (tests/backend)
 scripts/              check_secrets.sh, generate_sample_pdfs.py
 docs/                 documentation
-data/                 synthetic sample PDFs (data/sample/); data/uploads/ is git-ignored upload storage
+data/                 synthetic sample PDFs (data/sample/); data/uploads/ and data/images/ are git-ignored storage
 ```
 
 ## Prerequisites
@@ -54,7 +59,7 @@ data/                 synthetic sample PDFs (data/sample/); data/uploads/ is git
 # 1. Configuration
 cp .env.example .env
 #    edit .env: replace POSTGRES_PASSWORD and the password inside DATABASE_URL (keep them identical)
-#    optional: UPLOAD_DIR, MAX_UPLOAD_SIZE_MB, TESSERACT_CMD, OCR_LANGUAGES, OCR_DPI (see docs/execution-steps.md)
+#    optional: UPLOAD_DIR, IMAGE_DIR, MAX_UPLOAD_SIZE_MB, TESSERACT_CMD, OCR_LANGUAGES, OCR_DPI, AUTO_MULTIMODAL, IMAGE_OCR (see docs/execution-steps.md)
 
 # 2. PostgreSQL (option A: Docker)
 docker compose up -d postgres
@@ -98,7 +103,7 @@ TEST_DATABASE_URL="postgresql+psycopg://user:PASSWORD@localhost:5432/testdb" pyt
 ## Documentation
 
 See [`docs/`](docs/): [execution steps](docs/execution-steps.md), project overview, architecture, API, database design,
-developer guide, [PDF extraction & OCR](docs/pdf-extraction-ocr.md), safety, limitations, and
+developer guide, [PDF extraction & OCR](docs/pdf-extraction-ocr.md), [multimodal processing](docs/multimodal-processing.md), safety, limitations, and
 [changelog](docs/changelog.md).
 
 ## Safety and data

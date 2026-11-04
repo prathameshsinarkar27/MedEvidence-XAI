@@ -33,6 +33,10 @@ FILES = {
     "synthetic_mixed_report.pdf": lambda: factory.mixed_pdf(
         factory.LAB_REPORT_LINES, ["Scanned addendum (synthetic)", "Fasting glucose 110 mg/dL"]
     ),
+    # Phase 4: a ruled table, a borderless table and two embedded pictures on page 1; prose only on page 2
+    "synthetic_multimodal_report.pdf": factory.multimodal_pdf,
+    # Phase 4: the same table on a page stored with a 90-degree rotation (tests source-region handling)
+    "synthetic_rotated_table.pdf": lambda: factory.table_pdf(rotation=90, caption="Synthetic rotated page"),
 }
 
 

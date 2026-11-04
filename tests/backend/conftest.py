@@ -63,7 +63,9 @@ def api(request, tmp_path, monkeypatch, set_database_url):
     when TEST_DATABASE_URL is set.
     """
     upload_dir = tmp_path / "uploads"
+    image_dir = tmp_path / "images"
     monkeypatch.setenv("UPLOAD_DIR", str(upload_dir))
+    monkeypatch.setenv("IMAGE_DIR", str(image_dir))
     monkeypatch.setenv("MAX_UPLOAD_SIZE_MB", "1")
 
     if request.param == "sqlite":
@@ -91,6 +93,7 @@ def api(request, tmp_path, monkeypatch, set_database_url):
         cfg.set_main_option("script_location", str(BACKEND_DIR / "alembic"))
         command.upgrade(cfg, "head")
         with create_engine(url).begin() as conn:
+            conn.execute(text("DELETE FROM table_cells"))
             conn.execute(text("DELETE FROM documents"))
         from app.main import create_app
 
@@ -100,6 +103,7 @@ def api(request, tmp_path, monkeypatch, set_database_url):
 
     with TestClient(app, raise_server_exceptions=False) as test_client:
         test_client.upload_dir = upload_dir  # type: ignore[attr-defined]
+        test_client.image_dir = image_dir  # type: ignore[attr-defined]
         test_client.session_factory = factory  # type: ignore[attr-defined]
         yield test_client
     engine.dispose()

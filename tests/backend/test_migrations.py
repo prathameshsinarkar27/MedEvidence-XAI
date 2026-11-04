@@ -15,6 +15,21 @@ PHASE2_DOCUMENT_COLUMNS = {
 PHASE3_DOCUMENT_COLUMNS = {
     "page_count", "processing_status", "processing_error_code", "processing_error", "processed_at", "pdf_metadata",
 }
+PHASE4_DOCUMENT_COLUMNS = {
+    "multimodal_status", "multimodal_error_code", "multimodal_error", "multimodal_processed_at",
+    "multimodal_page_count", "multimodal_pages_processed", "table_count", "image_count", "multimodal_summary",
+}
+TABLE_COLUMNS = {
+    "id", "document_id", "page_number", "table_index", "detection_method", "bbox_x0", "bbox_y0", "bbox_x1", "bbox_y1",
+    "page_width", "page_height", "page_rotation", "row_count", "col_count", "created_at",
+}
+CELL_COLUMNS = {"id", "table_id", "row_index", "col_index", "text", "bbox_x0", "bbox_y0", "bbox_x1", "bbox_y1"}
+IMAGE_COLUMNS = {
+    "id", "document_id", "page_number", "image_index", "xref", "width_px", "height_px", "colorspace",
+    "bits_per_component", "original_format", "stored_format", "stored_filename", "file_size_bytes", "sha256",
+    "bbox_x0", "bbox_y0", "bbox_x1", "bbox_y1", "page_width", "page_height", "page_rotation", "is_full_page",
+    "extraction_status", "error_message", "ocr_status", "ocr_text", "ocr_mean_confidence", "created_at",
+}
 PAGE_COLUMNS = {
     "id", "document_id", "page_number", "extraction_method", "extracted_text", "char_count",
     "processing_status", "ocr_status", "ocr_mean_confidence", "has_images", "is_likely_scanned",
@@ -30,8 +45,8 @@ def _alembic_config() -> Config:
 
 def test_single_linear_migration_head():
     script = ScriptDirectory.from_config(_alembic_config())
-    assert script.get_heads() == ["0003"]
-    assert [r.revision for r in script.walk_revisions()] == ["0003", "0002", "0001"]
+    assert script.get_heads() == ["0004"]
+    assert [r.revision for r in script.walk_revisions()] == ["0004", "0003", "0002", "0001"]
 
 
 @pytest.mark.integration
@@ -51,12 +66,24 @@ def test_upgrade_and_downgrade_roundtrip(set_database_url, test_database_url):
         command.downgrade(cfg, "base")
         command.upgrade(cfg, "head")
         assert {"app_metadata", "documents", "document_pages"} <= set(inspect(engine).get_table_names())
-        assert phase() == "3"
-        assert columns("documents") == PHASE2_DOCUMENT_COLUMNS | PHASE3_DOCUMENT_COLUMNS
+        assert phase() == "4"
+        assert columns("documents") == PHASE2_DOCUMENT_COLUMNS | PHASE3_DOCUMENT_COLUMNS | PHASE4_DOCUMENT_COLUMNS
         assert columns("document_pages") == PAGE_COLUMNS
-        foreign_keys = inspect(engine).get_foreign_keys("document_pages")
-        assert foreign_keys[0]["referred_table"] == "documents"
-        assert foreign_keys[0]["options"].get("ondelete", "").upper() == "CASCADE"
+        assert columns("document_tables") == TABLE_COLUMNS
+        assert columns("table_cells") == CELL_COLUMNS
+        assert columns("document_images") == IMAGE_COLUMNS
+        for table, parent in (("document_pages", "documents"), ("document_tables", "documents"),
+                              ("document_images", "documents"), ("table_cells", "document_tables")):
+            foreign_keys = inspect(engine).get_foreign_keys(table)
+            assert foreign_keys[0]["referred_table"] == parent
+            assert foreign_keys[0]["options"].get("ondelete", "").upper() == "CASCADE"
+
+        command.downgrade(cfg, "0003")  # Phase 4 can be reverted without losing Phase 3
+        tables = set(inspect(engine).get_table_names())
+        assert not ({"document_tables", "table_cells", "document_images"} & tables) and "document_pages" in tables
+        assert columns("documents") == PHASE2_DOCUMENT_COLUMNS | PHASE3_DOCUMENT_COLUMNS
+        assert phase() == "3"
+        command.upgrade(cfg, "head")
 
         command.downgrade(cfg, "0002")  # Phase 3 can be reverted without losing Phase 2
         assert "document_pages" not in inspect(engine).get_table_names()
@@ -93,8 +120,11 @@ def test_existing_phase2_rows_survive_upgrade_with_defaults(set_database_url, te
             )
         command.upgrade(cfg, "head")
         with engine.connect() as conn:
-            row = conn.execute(text("SELECT processing_status, page_count FROM documents")).one()
-        assert tuple(row) == ("not_processed", None)
+            row = conn.execute(
+                text("SELECT processing_status, page_count, multimodal_status, multimodal_pages_processed, table_count "
+                     "FROM documents")
+            ).one()
+        assert tuple(row) == ("not_processed", None, "not_processed", 0, None)
     finally:
         with engine.begin() as conn:
             conn.execute(text("DELETE FROM documents"))
