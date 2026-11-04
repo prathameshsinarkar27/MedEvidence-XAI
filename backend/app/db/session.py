@@ -31,15 +31,24 @@ def get_engine() -> Engine | None:
     return create_engine(url, pool_pre_ping=True, connect_args={"connect_timeout": 3})
 
 
-def get_session():
-    """FastAPI dependency yielding a DB session (503 if DATABASE_URL is not configured)."""
+def get_session_factory() -> sessionmaker:
+    """FastAPI dependency returning a session factory (503 if DATABASE_URL is not configured).
+
+    Background tasks use this to open their own sessions: a request-scoped session is closed
+    once the response is sent.
+    """
     engine = get_engine()
     if engine is None:
         raise HTTPException(
             status_code=503,
             detail={"code": "database_not_configured", "message": "The database is not configured."},
         )
-    factory = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
+    return sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
+
+
+def get_session():
+    """FastAPI dependency yielding a DB session (503 if DATABASE_URL is not configured)."""
+    factory = get_session_factory()
     session: Session = factory()
     try:
         yield session

@@ -1,4 +1,4 @@
-"""Phase 2: documents table.
+"""documents table.
 
 Revision ID: 0002
 Revises: 0001

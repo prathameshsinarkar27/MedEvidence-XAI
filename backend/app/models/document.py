@@ -3,15 +3,24 @@
 import uuid
 from datetime import datetime, timezone
 
-from sqlalchemy import BigInteger, DateTime, Index, String, Uuid
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import JSON, BigInteger, DateTime, Index, Integer, String, Text, Uuid
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 
 UPLOAD_STATUS_UPLOADED = "uploaded"
 
+# Document-level processing status (Phase 3)
+PROCESSING_NOT_PROCESSED = "not_processed"
+PROCESSING_QUEUED = "queued"
+PROCESSING_RUNNING = "processing"
+PROCESSING_COMPLETED = "completed"
+PROCESSING_COMPLETED_WITH_ERRORS = "completed_with_errors"
+PROCESSING_FAILED = "failed"
+PROCESSING_IN_PROGRESS = (PROCESSING_QUEUED, PROCESSING_RUNNING)
 
-def _utcnow() -> datetime:
+
+def utcnow() -> datetime:
     return datetime.now(timezone.utc)
 
 
@@ -30,7 +39,22 @@ class Document(Base):
     # Path relative to UPLOAD_DIR (never an absolute server path).
     storage_path: Mapped[str] = mapped_column(String(500), nullable=False)
     upload_status: Mapped[str] = mapped_column(String(20), nullable=False, default=UPLOAD_STATUS_UPLOADED)
-    uploaded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=_utcnow)
+    uploaded_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=utcnow)
+
+    # --- Phase 3: processing ---
+    page_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    processing_status: Mapped[str] = mapped_column(
+        String(30), nullable=False, default=PROCESSING_NOT_PROCESSED, server_default=PROCESSING_NOT_PROCESSED
+    )
+    processing_error_code: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    processing_error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    processed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # Selected PDF info fields (title, author, producer, dates, ...). May contain personal data.
+    pdf_metadata: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+
+    pages: Mapped[list["DocumentPage"]] = relationship(  # noqa: F821
+        back_populates="document", cascade="all, delete-orphan", order_by="DocumentPage.page_number"
+    )
 
     __table_args__ = (
         Index("ix_documents_uploaded_at", "uploaded_at"),
