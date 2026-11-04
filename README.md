@@ -9,12 +9,15 @@ Final-year B.Tech (CSE, AI & ML) project. The long-term goal is to turn uploaded
 traceable evidence and answer questions only when the evidence supports them:
 `answer → evidence → source document → page/region → confidence → reason`.
 
-## Current status:  Foundation + project skeleton
+## Current status: Medical document upload + storage
 
-Implemented: repository layout, FastAPI backend, React + Vite + Tailwind frontend, `.env` configuration,
-PostgreSQL connection, Alembic migrations, health-check API, status dashboard, logging, tests, docs.
+- **1:** repository layout, FastAPI backend, React + Vite + Tailwind frontend, `.env` configuration,
+  PostgreSQL connection, Alembic migrations, health-check API, status dashboard, logging.
+- **2:** secure PDF upload (extension + MIME type + `%PDF-` signature + size checks, safe filenames,
+  UUID storage names), `documents` table, upload/list/metadata APIs, upload UI with progress, document list and
+  metadata panel.
 
-**Not implemented yet** : upload, PDF processing, OCR, clinical extraction, embeddings,
+**Not implemented yet** PDF parsing, OCR, tables/images, clinical extraction, embeddings,
 retrieval, QA. Nothing has been evaluated ("Not yet evaluated").
 
 ## Repository layout
@@ -27,7 +30,7 @@ database/             (placeholder for DB assets)
 tests/                pytest suite (tests/backend)
 scripts/              helper scripts (check_secrets.sh)
 docs/                 documentation
-data/                 synthetic/legally reusable sample data only
+data/                 synthetic/legally reusable sample data only (data/uploads/ is git-ignored upload storage)
 ```
 
 ## Prerequisites
@@ -42,6 +45,7 @@ data/                 synthetic/legally reusable sample data only
 # 1. Configuration
 cp .env.example .env
 #    edit .env: replace POSTGRES_PASSWORD and the password inside DATABASE_URL (keep them identical)
+#    optional: UPLOAD_DIR (default data/uploads) and MAX_UPLOAD_SIZE_MB (default 25)
 
 # 2. PostgreSQL (option A: Docker)
 docker compose up -d postgres
@@ -60,19 +64,27 @@ npm install
 npm run dev                                             # http://localhost:5173
 ```
 
-Open http://localhost:5173 — the dashboard shows backend and PostgreSQL status.
+Open http://localhost:5173 — the **Dashboard** tab shows backend and PostgreSQL status; the **Documents** tab
+uploads PDFs and lists them. Only synthetic or anonymised documents should ever be uploaded.
+
+Uploading from the command line:
+
+```bash
+curl -F "file=@sample.pdf;type=application/pdf" http://localhost:8000/api/documents
+curl http://localhost:8000/api/documents
+```
 API docs: http://localhost:8000/docs
 
 ## Tests
 
 ```bash
 # from the repository root, with the backend venv active
-python -m pytest                      # unit tests; PostgreSQL integration tests are skipped
+python -m pytest                      # unit + API tests on SQLite; PostgreSQL integration tests are skipped
 TEST_DATABASE_URL="postgresql+psycopg://user:PASSWORD@localhost:5432/testdb" python -m pytest
 ```
 
-> The integration migration test **drops and recreates** the `app_metadata` table in `TEST_DATABASE_URL`.
-> Point it at a throwaway database, not data you care about.
+> The PostgreSQL integration tests **downgrade/upgrade the schema and delete all rows in `documents`** in
+> `TEST_DATABASE_URL`. Point it at a throwaway database, not data you care about.
 
 ## Documentation
 
