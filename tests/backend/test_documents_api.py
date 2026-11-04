@@ -2,6 +2,7 @@
 
 import hashlib
 import uuid
+from datetime import datetime
 
 # NOTE: these are minimal fake PDFs: they carry the "%PDF-" signature but are not parsed.
 # Real PDF parsing arrives in Phase 3.
@@ -83,7 +84,14 @@ def test_get_document_metadata(api):
     created = upload(api).json()
     response = api.get(f"/api/documents/{created['id']}")
     assert response.status_code == 200
-    assert response.json() == created
+    fetched = response.json()
+
+    # SQLite does not store time zones, so compare the instant ignoring tzinfo (PostgreSQL keeps it).
+    def instant(value: str) -> datetime:
+        return datetime.fromisoformat(value.replace("Z", "+00:00")).replace(tzinfo=None)
+
+    assert instant(fetched.pop("uploaded_at")) == instant(created.pop("uploaded_at"))
+    assert fetched == created
 
 
 def test_get_unknown_document_404(api):

@@ -6,13 +6,13 @@ from alembic import command
 from alembic.config import Config
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, text
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, sessionmaker
 from sqlalchemy.pool import StaticPool
 
 import app.models  # noqa: F401  (register models on Base.metadata)
 from app.core.config import get_settings
 from app.db.base import Base
-from app.db.session import get_engine, get_session
+from app.db.session import get_engine, get_session, get_session_factory
 
 
 def _reset_caches() -> None:
@@ -76,11 +76,14 @@ def api(request, tmp_path, monkeypatch, set_database_url):
 
         app = create_app()
 
+        factory = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
+
         def _session():
-            with Session(engine) as session:
+            with factory() as session:
                 yield session
 
         app.dependency_overrides[get_session] = _session
+        app.dependency_overrides[get_session_factory] = lambda: factory
     else:
         url = request.getfixturevalue("test_database_url")
         set_database_url(url)
@@ -92,7 +95,24 @@ def api(request, tmp_path, monkeypatch, set_database_url):
         from app.main import create_app
 
         app = create_app()
+        engine = create_engine(url)
+        factory = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
 
     with TestClient(app, raise_server_exceptions=False) as test_client:
         test_client.upload_dir = upload_dir  # type: ignore[attr-defined]
+        test_client.session_factory = factory  # type: ignore[attr-defined]
         yield test_client
+    engine.dispose()
+
+
+@pytest.fixture
+def configure(monkeypatch):
+    """Change settings mid-test: configure(TESSERACT_CMD="/nope")."""
+
+    def _configure(**env: str) -> None:
+        for key, value in env.items():
+            monkeypatch.setenv(key, value)
+        get_settings.cache_clear()
+
+    yield _configure
+    get_settings.cache_clear()
