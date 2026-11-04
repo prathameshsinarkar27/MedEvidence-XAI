@@ -58,9 +58,20 @@ class TesseractCapability(BaseModel):
     message: str | None  # setup instructions when not available
 
 
+class MultimodalCapability(BaseModel):
+    table_engine: str
+    auto_multimodal: bool  # tables/images are extracted automatically after text processing
+    image_ocr_default: bool  # OCR of text inside images is on by default (IMAGE_OCR)
+    min_image_side_px: int
+    max_images_per_document: int
+    max_tables_per_document: int
+    max_image_bytes: int
+
+
 class Capabilities(BaseModel):
     pdf_engine: str
     ocr: TesseractCapability
     min_text_chars_per_page: int
     ocr_dpi: int
     max_pdf_pages: int
+    multimodal: MultimodalCapability | None = None  # Phase 4

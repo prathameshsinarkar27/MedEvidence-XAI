@@ -15,7 +15,7 @@ from typing import Iterator
 
 import pymupdf
 
-from document_processing.errors import OcrFailedError, OcrUnavailableError, PdfOpenError
+from document_processing.errors import OcrFailedError, OcrUnavailableError
 from document_processing.models import (
     METHOD_NONE,
     METHOD_OCR,
@@ -32,6 +32,7 @@ from document_processing.models import (
     ProcessingConfig,
 )
 from document_processing.ocr import TesseractOcr
+from document_processing.pdf_open import open_pdf
 from document_processing.scanned_detection import is_likely_scanned, is_text_sparse, page_has_images
 from document_processing.text_extraction import (
     PdfplumberReader,
@@ -72,23 +73,7 @@ class PdfProcessor:
             self._doc = None
 
     def _open(self) -> None:
-        try:
-            doc = pymupdf.open(self._path)
-        except Exception as exc:
-            raise PdfOpenError("The file could not be opened as a PDF (it may be corrupt or truncated).") from exc
-        if doc.needs_pass:
-            doc.close()
-            raise PdfOpenError("The PDF is password-protected; encrypted PDFs are not supported.", code="encrypted_pdf")
-        if doc.page_count == 0:
-            doc.close()
-            raise PdfOpenError("The PDF contains no pages.", code="empty_pdf")
-        if doc.page_count > self._config.max_pages:
-            count = doc.page_count
-            doc.close()
-            raise PdfOpenError(
-                f"The PDF has {count} pages; the limit is {self._config.max_pages} (MAX_PDF_PAGES).",
-                code="too_many_pages",
-            )
+        doc = open_pdf(self._path, self._config)
         self._doc = doc
         self._plumber = PdfplumberReader(self._path)
         self.page_count = doc.page_count

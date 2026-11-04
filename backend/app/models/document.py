@@ -52,6 +52,20 @@ class Document(Base):
     # Selected PDF info fields (title, author, producer, dates, ...). May contain personal data.
     pdf_metadata: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
+    # --- Phase 4: tables and embedded images (own status, same vocabulary as processing_status) ---
+    multimodal_status: Mapped[str] = mapped_column(
+        String(30), nullable=False, default=PROCESSING_NOT_PROCESSED, server_default=PROCESSING_NOT_PROCESSED
+    )
+    multimodal_error_code: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    multimodal_error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    multimodal_processed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    multimodal_page_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    multimodal_pages_processed: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
+    table_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    image_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    # Counts of things skipped by design (tiny images, text-less grids, limits). See docs/multimodal-processing.md.
+    multimodal_summary: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+
     pages: Mapped[list["DocumentPage"]] = relationship(  # noqa: F821
         back_populates="document", cascade="all, delete-orphan", order_by="DocumentPage.page_number"
     )

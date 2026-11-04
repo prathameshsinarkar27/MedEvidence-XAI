@@ -23,6 +23,13 @@ class DocumentOut(BaseModel):
     processing_error: str | None = None
     processed_at: datetime | None = None
     pdf_metadata: dict[str, str] | None = None
+    # Phase 4
+    multimodal_status: str = "not_processed"
+    multimodal_error_code: str | None = None
+    multimodal_error: str | None = None
+    multimodal_processed_at: datetime | None = None
+    table_count: int | None = None
+    image_count: int | None = None
 
 
 class DocumentList(BaseModel):
