@@ -9,10 +9,8 @@ Final-year B.Tech (CSE, AI & ML) project. The long-term goal is to turn uploaded
 traceable evidence and answer questions only when the evidence supports them:
 `answer → evidence → source document → page/region → confidence → reason`.
 
-## Current status: 4 — multimodal document processing
+## Current status: 5 — clinical information extraction
 
-> **New here? Start with [`docs/execution-steps.md`](docs/execution-steps.md)**, the step-by-step guide for
-> installing, running and checking Phases 1-4.
 
 - **1:** repository layout, FastAPI backend, React + Vite + Tailwind frontend, `.env` configuration,
   PostgreSQL connection, Alembic migrations, health-check API, status dashboard, logging.
@@ -29,8 +27,13 @@ traceable evidence and answer questions only when the evidence supports them:
   highlighted, and APIs/UI to inspect tables, images, source page and region. Images are never interpreted (no
   medical-image analysis). Method: [`docs/multimodal-processing.md`](docs/multimodal-processing.md).
 
-**Not implemented yet**: clinical extraction, embeddings, retrieval, QA.
-Nothing has been evaluated, including extraction, OCR and table/image detection accuracy ("Not yet evaluated").
+- **5:** rule- and lexicon-based extraction of lab results, vital signs, medications, conditions, symptoms and dates
+  from text, OCR text, tables and image-OCR text, with negation/uncertainty/family-history handling, normalisation that keeps
+  the original text, a `ClinicalEvidence` model with exact source text, offsets, page region and a heuristic confidence, APIs,
+  and a viewer. No trained model. 
+
+**Not implemented yet**: evidence indexing, embeddings, retrieval, verification, conflict detection, QA.
+Nothing has been evaluated, including extraction, OCR, table/image detection and clinical-extraction accuracy ("Not yet evaluated").
 
 ## Repository layout
 
@@ -59,7 +62,7 @@ data/                 synthetic sample PDFs (data/sample/); data/uploads/ and da
 # 1. Configuration
 cp .env.example .env
 #    edit .env: replace POSTGRES_PASSWORD and the password inside DATABASE_URL (keep them identical)
-#    optional: UPLOAD_DIR, IMAGE_DIR, MAX_UPLOAD_SIZE_MB, TESSERACT_CMD, OCR_LANGUAGES, OCR_DPI, AUTO_MULTIMODAL, IMAGE_OCR (see docs/execution-steps.md)
+#    optional: UPLOAD_DIR, IMAGE_DIR, MAX_UPLOAD_SIZE_MB, TESSERACT_CMD, OCR_LANGUAGES, OCR_DPI, AUTO_MULTIMODAL, IMAGE_OCR, AUTO_CLINICAL_EXTRACTION (see docs/execution-steps.md)
 
 # 2. PostgreSQL (option A: Docker)
 docker compose up -d postgres
@@ -103,7 +106,7 @@ TEST_DATABASE_URL="postgresql+psycopg://user:PASSWORD@localhost:5432/testdb" pyt
 ## Documentation
 
 See [`docs/`](docs/): [execution steps](docs/execution-steps.md), project overview, architecture, API, database design,
-developer guide, [PDF extraction & OCR](docs/pdf-extraction-ocr.md), [multimodal processing](docs/multimodal-processing.md), safety, limitations, and
+developer guide, [PDF extraction & OCR](docs/pdf-extraction-ocr.md), [multimodal processing](docs/multimodal-processing.md), [clinical information extraction](docs/clinical-information-extraction.md), [evidence model](docs/evidence-model.md), [ML methodology](docs/ml-methodology.md), safety, limitations, and
 [changelog](docs/changelog.md).
 
 ## Safety and data

@@ -19,6 +19,19 @@ PHASE4_DOCUMENT_COLUMNS = {
     "multimodal_status", "multimodal_error_code", "multimodal_error", "multimodal_processed_at",
     "multimodal_page_count", "multimodal_pages_processed", "table_count", "image_count", "multimodal_summary",
 }
+PHASE5_DOCUMENT_COLUMNS = {
+    "clinical_status", "clinical_error_code", "clinical_error", "clinical_processed_at", "clinical_page_count",
+    "clinical_pages_processed", "evidence_count", "clinical_summary",
+}
+EVIDENCE_COLUMNS = {
+    "id", "document_id", "page_number", "ordinal", "modality", "entity_type", "entity_name", "assertion",
+    "mention_text", "source_text", "source_field", "char_start", "char_end", "source_start", "source_end",
+    "value_text", "value_numeric", "value_comparator", "unit_text", "unit_normalized", "reference_text",
+    "reference_low", "reference_high", "abnormal_flag", "flag_source", "date_text", "date_iso", "attributes",
+    "table_id", "table_row_index", "cell_positions", "image_id", "bbox_x0", "bbox_y0", "bbox_x1", "bbox_y1",
+    "page_width", "page_height", "page_rotation", "extraction_method", "extractor_version",
+    "extraction_confidence", "confidence_factors", "ocr_confidence", "created_at",
+}
 TABLE_COLUMNS = {
     "id", "document_id", "page_number", "table_index", "detection_method", "bbox_x0", "bbox_y0", "bbox_x1", "bbox_y1",
     "page_width", "page_height", "page_rotation", "row_count", "col_count", "created_at",
@@ -45,8 +58,8 @@ def _alembic_config() -> Config:
 
 def test_single_linear_migration_head():
     script = ScriptDirectory.from_config(_alembic_config())
-    assert script.get_heads() == ["0004"]
-    assert [r.revision for r in script.walk_revisions()] == ["0004", "0003", "0002", "0001"]
+    assert script.get_heads() == ["0005"]
+    assert [r.revision for r in script.walk_revisions()] == ["0005", "0004", "0003", "0002", "0001"]
 
 
 @pytest.mark.integration
@@ -66,8 +79,15 @@ def test_upgrade_and_downgrade_roundtrip(set_database_url, test_database_url):
         command.downgrade(cfg, "base")
         command.upgrade(cfg, "head")
         assert {"app_metadata", "documents", "document_pages"} <= set(inspect(engine).get_table_names())
-        assert phase() == "4"
-        assert columns("documents") == PHASE2_DOCUMENT_COLUMNS | PHASE3_DOCUMENT_COLUMNS | PHASE4_DOCUMENT_COLUMNS
+        assert phase() == "5"
+        assert columns("documents") == (
+            PHASE2_DOCUMENT_COLUMNS | PHASE3_DOCUMENT_COLUMNS | PHASE4_DOCUMENT_COLUMNS | PHASE5_DOCUMENT_COLUMNS
+        )
+        assert columns("clinical_evidence") == EVIDENCE_COLUMNS
+        evidence_fks = {fk["constrained_columns"][0]: (fk["referred_table"], fk["options"].get("ondelete", "").upper())
+                        for fk in inspect(engine).get_foreign_keys("clinical_evidence")}
+        assert evidence_fks == {"document_id": ("documents", "CASCADE"), "table_id": ("document_tables", "SET NULL"),
+                                "image_id": ("document_images", "SET NULL")}
         assert columns("document_pages") == PAGE_COLUMNS
         assert columns("document_tables") == TABLE_COLUMNS
         assert columns("table_cells") == CELL_COLUMNS
@@ -77,6 +97,12 @@ def test_upgrade_and_downgrade_roundtrip(set_database_url, test_database_url):
             foreign_keys = inspect(engine).get_foreign_keys(table)
             assert foreign_keys[0]["referred_table"] == parent
             assert foreign_keys[0]["options"].get("ondelete", "").upper() == "CASCADE"
+
+        command.downgrade(cfg, "0004")  # Phase 5 can be reverted without losing Phase 4
+        assert "clinical_evidence" not in inspect(engine).get_table_names() and "document_tables" in inspect(engine).get_table_names()
+        assert columns("documents") == PHASE2_DOCUMENT_COLUMNS | PHASE3_DOCUMENT_COLUMNS | PHASE4_DOCUMENT_COLUMNS
+        assert phase() == "4"
+        command.upgrade(cfg, "head")
 
         command.downgrade(cfg, "0003")  # Phase 4 can be reverted without losing Phase 3
         tables = set(inspect(engine).get_table_names())
@@ -121,10 +147,11 @@ def test_existing_phase2_rows_survive_upgrade_with_defaults(set_database_url, te
         command.upgrade(cfg, "head")
         with engine.connect() as conn:
             row = conn.execute(
-                text("SELECT processing_status, page_count, multimodal_status, multimodal_pages_processed, table_count "
+                text("SELECT processing_status, page_count, multimodal_status, multimodal_pages_processed, table_count, "
+                     "clinical_status, clinical_pages_processed, evidence_count "
                      "FROM documents")
             ).one()
-        assert tuple(row) == ("not_processed", None, "not_processed", 0, None)
+        assert tuple(row) == ("not_processed", None, "not_processed", 0, None, "not_processed", 0, None)
     finally:
         with engine.begin() as conn:
             conn.execute(text("DELETE FROM documents"))

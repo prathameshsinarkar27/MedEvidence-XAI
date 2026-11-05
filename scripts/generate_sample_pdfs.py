@@ -37,6 +37,8 @@ FILES = {
     "synthetic_multimodal_report.pdf": factory.multimodal_pdf,
     # Phase 4: the same table on a page stored with a 90-degree rotation (tests source-region handling)
     "synthetic_rotated_table.pdf": lambda: factory.table_pdf(rotation=90, caption="Synthetic rotated page"),
+    # Phase 5: narrative with negation / uncertainty / family history / allergy, medications, vitals, dates + a lab table
+    "synthetic_clinical_note.pdf": factory.clinical_note_pdf,
 }
 
 

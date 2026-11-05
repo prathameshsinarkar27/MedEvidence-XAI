@@ -194,3 +194,27 @@ def multimodal_pdf() -> bytes:
     ):
         second.insert_text((72, 100 + i * 20), line, fontsize=11)
     return doc.tobytes(deflate=True, garbage=3)
+
+
+# ===================== Phase 5: clinical information (all content invented) =====================
+
+CLINICAL_NOTE_LINES: list[str] = [
+    "SYNTHETIC CLINIC NOTE - NOT A REAL PATIENT",
+    "Visit date: 12-Aug-2026",
+    "Patient denies chest pain or fever. History of type 2 diabetes mellitus.",
+    "Possible peripheral neuropathy. Mother had hypertension. Allergic to penicillin.",
+    "Current medication: Metformin 500 mg twice daily PO; amlodipine 5 mg once daily.",
+    "Aspirin was discontinued last month. Vitals: BP 140/90 mmHg, heart rate 78 bpm.",
+    "HbA1c was 7.8 % on 12-Aug-2026. Follow-up planned for 03/09/2026.",
+]
+
+
+def clinical_note_pdf() -> bytes:
+    """One page: narrative note (negation, uncertainty, family history, allergy, medications, vitals, dates)
+    followed by a ruled lab table."""
+    doc = pymupdf.open()
+    page = doc.new_page()
+    _write_lines(page, CLINICAL_NOTE_LINES, 9, top=80, step=16)
+    page.insert_text((72, 220), "Laboratory results (synthetic)", fontsize=10)
+    draw_ruled_table(page, LAB_TABLE_ROWS, y0=235)
+    return doc.tobytes(deflate=True, garbage=3)
