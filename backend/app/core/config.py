@@ -66,6 +66,10 @@ class Settings(BaseSettings):
     max_cells_per_table: int = Field(default=5000, ge=4, le=100_000)
     image_ocr_min_chars: int = Field(default=10, ge=1, le=1000)
 
+    # Phase 5: clinical information extraction.
+    auto_clinical_extraction: bool = True  # run automatically after text (and table/image) processing
+    max_evidence_per_document: int = Field(default=20000, ge=10, le=500_000)
+
     @field_validator("ocr_languages")
     @classmethod
     def _validate_ocr_languages(cls, value: str) -> str:

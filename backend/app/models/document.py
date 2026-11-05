@@ -66,6 +66,18 @@ class Document(Base):
     # Counts of things skipped by design (tiny images, text-less grids, limits). See docs/multimodal-processing.md.
     multimodal_summary: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
+    # --- Phase 5: clinical information extraction (own status, same vocabulary) ---
+    clinical_status: Mapped[str] = mapped_column(
+        String(30), nullable=False, default=PROCESSING_NOT_PROCESSED, server_default=PROCESSING_NOT_PROCESSED
+    )
+    clinical_error_code: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    clinical_error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    clinical_processed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    clinical_page_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    clinical_pages_processed: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
+    evidence_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    clinical_summary: Mapped[dict | None] = mapped_column(JSON, nullable=True)
+
     pages: Mapped[list["DocumentPage"]] = relationship(  # noqa: F821
         back_populates="document", cascade="all, delete-orphan", order_by="DocumentPage.page_number"
     )
