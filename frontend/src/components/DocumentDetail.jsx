@@ -5,6 +5,8 @@ import ProcessingPanel from "./ProcessingPanel.jsx";
 import PageViewer from "./PageViewer.jsx";
 import MultimodalPanel from "./MultimodalPanel.jsx";
 import MultimodalViewer from "./MultimodalViewer.jsx";
+import ClinicalPanel from "./ClinicalPanel.jsx";
+import ClinicalViewer from "./ClinicalViewer.jsx";
 
 // `onProcessingChange` fires when the document's processing status changes (so the list can refresh).
 export default function DocumentDetail({ documentId, onProcessingChange }) {
@@ -12,6 +14,8 @@ export default function DocumentDetail({ documentId, onProcessingChange }) {
   const [error, setError] = useState(null);
   const [status, setStatus] = useState(null);
   const [mmStatus, setMmStatus] = useState(null);
+  const [clinicalStatus, setClinicalStatus] = useState(null);
+  const lastClinicalStatus = useRef(null);
   const lastStatus = useRef(null);
   const lastMmStatus = useRef(null);
 
@@ -22,6 +26,8 @@ export default function DocumentDetail({ documentId, onProcessingChange }) {
     setError(null);
     setStatus(null);
     setMmStatus(null);
+    setClinicalStatus(null);
+    lastClinicalStatus.current = null;
     lastStatus.current = null;
     lastMmStatus.current = null;
     getDocument(documentId, { signal: controller.signal })
@@ -57,6 +63,18 @@ export default function DocumentDetail({ documentId, onProcessingChange }) {
     [onProcessingChange],
   );
 
+  const handleClinicalStatus = useCallback(
+    (next) => {
+      setClinicalStatus(next);
+      if (lastClinicalStatus.current !== null && lastClinicalStatus.current !== next.clinical_status) {
+        onProcessingChange?.();
+        getDocument(next.document_id).then(setDoc).catch(() => {}); // refresh the evidence count
+      }
+      lastClinicalStatus.current = next.clinical_status;
+    },
+    [onProcessingChange],
+  );
+
   if (!documentId) {
     return (
       <section className="rounded-lg border border-dashed border-slate-300 p-5 text-sm text-slate-500">
@@ -78,6 +96,7 @@ export default function DocumentDetail({ documentId, onProcessingChange }) {
         ["Uploaded", formatDateTime(doc.uploaded_at)],
         ["Processed", formatDateTime(doc.processed_at)],
         ["Tables / images", doc.table_count == null ? "\u2014" : `${doc.table_count} / ${doc.image_count}`],
+        ["Clinical items", doc.evidence_count == null ? "\u2014" : doc.evidence_count],
       ]
     : [];
   const pdfInfo = Object.entries(doc?.pdf_metadata ?? {});
@@ -119,10 +138,19 @@ export default function DocumentDetail({ documentId, onProcessingChange }) {
         </section>
         <ProcessingPanel documentId={documentId} onStatus={handleStatus} />
         <MultimodalPanel documentId={documentId} textStatus={status?.processing_status} onStatus={handleMmStatus} />
+        <ClinicalPanel
+          documentId={documentId}
+          textStatus={status?.processing_status}
+          mmStatus={mmStatus?.multimodal_status}
+          onStatus={handleClinicalStatus}
+        />
       </div>
       <PageViewer documentId={documentId} status={status} />
       <div className="lg:col-span-2">
         <MultimodalViewer documentId={documentId} status={mmStatus} />
+      </div>
+      <div className="lg:col-span-2">
+        <ClinicalViewer documentId={documentId} status={clinicalStatus} />
       </div>
     </div>
   );

@@ -54,5 +54,45 @@ export const IMAGE_OCR_LABELS = {
 export const TABLE_METHOD_LABELS = { pymupdf_find_tables: "PyMuPDF table detection (heuristic)" };
 
 export function inProgress(doc) {
-  return IN_PROGRESS.includes(doc.processing_status) || IN_PROGRESS.includes(doc.multimodal_status);
+  return (
+    IN_PROGRESS.includes(doc.processing_status) ||
+    IN_PROGRESS.includes(doc.multimodal_status) ||
+    IN_PROGRESS.includes(doc.clinical_status)
+  );
 }
+
+// Phase 5
+export const ENTITY_LABELS = {
+  lab_result: "Lab result",
+  vital_sign: "Vital sign",
+  medication: "Medication",
+  condition: "Condition",
+  symptom: "Symptom",
+  date: "Date",
+};
+
+export const ASSERTION_LABELS = {
+  affirmed: "Present",
+  negated: "Negated (absent)",
+  uncertain: "Uncertain",
+  family_history: "Family history",
+  allergy: "Allergy / intolerance",
+  discontinued: "Discontinued",
+  planned: "Planned / suggested",
+};
+
+export const MODALITY_LABELS = {
+  text: "PDF text",
+  ocr: "Page OCR",
+  table: "Table",
+  image_ocr: "Image OCR",
+};
+
+export const FLAG_LABELS = { high: "High", low: "Low", normal: "Normal" };
+export const FLAG_SOURCE_LABELS = {
+  printed_flag: "flag printed in the document",
+  printed_reference_range: "compared with the reference range printed in the document",
+};
+
+export const CLINICAL_NOTE =
+  "Rule-based extraction. Confidence is a heuristic score, not a probability; accuracy has not been evaluated.";

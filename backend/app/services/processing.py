@@ -11,6 +11,7 @@ from sqlalchemy import delete, select, update
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.config import Settings
+from app.services.clinical_reset import reset_clinical
 from app.models.document import (
     PROCESSING_COMPLETED,
     PROCESSING_COMPLETED_WITH_ERRORS,
@@ -110,6 +111,7 @@ def _run(session: Session, settings: Settings, document_id: uuid.UUID) -> None:
     document.pdf_metadata = None
     document.processed_at = None
     session.execute(delete(DocumentPage).where(DocumentPage.document_id == document_id))
+    reset_clinical(session, document_id)  # evidence derived from the old pages is stale
     session.commit()
 
     path = resolve_stored_path(settings, document)

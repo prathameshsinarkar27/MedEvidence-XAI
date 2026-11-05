@@ -19,7 +19,7 @@ export default function App() {
         <div className="mx-auto max-w-5xl px-6 pt-4">
           <h1 className="text-lg font-semibold">MedEvidence-XAI</h1>
           <p className="text-xs text-slate-500">
-            Evidence-grounded medical document understanding &mdash; Phase 4: tables, images + source regions
+            Evidence-grounded medical document understanding &mdash; Phase 5: clinical information extraction
           </p>
           <nav className="mt-3 flex gap-1" aria-label="Main">
             {TABS.map(([id, label]) => (

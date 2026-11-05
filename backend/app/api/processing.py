@@ -11,6 +11,7 @@ from app.db.session import get_session, get_session_factory
 from app.models.document import Document
 from app.schemas.processing import (
     Capabilities,
+    ClinicalCapability,
     PageDetail,
     PageList,
     PageSummary,
@@ -22,6 +23,7 @@ from app.schemas.processing import (
 from app.services import documents as document_service
 from app.services import multimodal as multimodal_service
 from app.services import processing as processing_service
+from clinical_extraction import ASSERTIONS, ENTITY_TYPES, EXTRACTOR_VERSION, lexicon_sizes
 from document_processing import check_tesseract
 
 documents_router = APIRouter(prefix="/documents", tags=["processing"])
@@ -120,5 +122,15 @@ def capabilities() -> Capabilities:
             max_images_per_document=settings.max_images_per_document,
             max_tables_per_document=settings.max_tables_per_document,
             max_image_bytes=settings.max_image_bytes,
+        ),
+        clinical=ClinicalCapability(
+            extractor_version=EXTRACTOR_VERSION,
+            approach="Rule-based and lexicon-based extraction (regular expressions, small built-in vocabularies, "
+            "NegEx-style negation rules). No trained model.",
+            auto_clinical_extraction=settings.auto_clinical_extraction,
+            max_evidence_per_document=settings.max_evidence_per_document,
+            lexicon_sizes=lexicon_sizes(),
+            entity_types=list(ENTITY_TYPES),
+            assertions=list(ASSERTIONS),
         ),
     )

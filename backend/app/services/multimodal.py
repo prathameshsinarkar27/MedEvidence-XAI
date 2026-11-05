@@ -40,6 +40,7 @@ from app.schemas.multimodal import (
     TableDetail,
     TableSummary,
 )
+from app.services.clinical_reset import reset_clinical
 from app.services.processing import resolve_stored_path
 from document_processing import (
     IMG_OCR_UNAVAILABLE,
@@ -157,6 +158,7 @@ def _clear_previous(session: Session, settings: Settings, document_id: uuid.UUID
     session.execute(delete(TableCell).where(TableCell.table_id.in_(table_ids)))
     session.execute(delete(DocumentTable).where(DocumentTable.document_id == document_id))
     session.execute(delete(DocumentImage).where(DocumentImage.document_id == document_id))
+    reset_clinical(session, document_id)  # evidence that points at the old tables/images is stale
     session.commit()
     _remove_document_images(settings, document_id)
 
@@ -354,24 +356,38 @@ def _finalize(session: Session, document_id: uuid.UUID, tally: _Tally, image_ocr
 
 
 def run_pipeline(session_factory: sessionmaker, settings: Settings, document_id: uuid.UUID) -> None:
-    """Text extraction + OCR, then (when AUTO_MULTIMODAL is on and text did not fail) tables and images.
+    """Text extraction + OCR, then (each switchable) tables/images and clinical extraction.
 
-    The two stages have separate statuses; a multimodal problem never changes the text-processing status."""
-    from app.services.processing import run_processing  # local import keeps the dependency one-way at import time
+    The stages have separate statuses; a later-stage problem never changes an earlier stage's status."""
+    from app.services import clinical as clinical_service  # local imports keep dependencies one-way at import time
+    from app.services.processing import run_processing
 
     run_processing(session_factory, settings, document_id)
-    if not settings.auto_multimodal:
-        return
-    try:
-        with session_factory() as session:
-            document = session.get(Document, document_id)
-            if document is None or document.processing_status == PROCESSING_FAILED:
-                return
-            if not claim_multimodal(session, document_id):
-                return  # a manual run is already in progress
-        run_multimodal(session_factory, settings, document_id)
-    except Exception:
-        logger.exception("Automatic table/image extraction could not start for document %s", document_id)
+    if settings.auto_multimodal:
+        try:
+            with session_factory() as session:
+                document = session.get(Document, document_id)
+                if document is None or document.processing_status == PROCESSING_FAILED:
+                    return
+                if claim_multimodal(session, document_id):
+                    claimed = True
+                else:
+                    claimed = False  # a manual run is already in progress
+            if claimed:
+                run_multimodal(session_factory, settings, document_id)
+        except Exception:
+            logger.exception("Automatic table/image extraction could not start for document %s", document_id)
+    if settings.auto_clinical_extraction:
+        try:
+            with session_factory() as session:
+                document = session.get(Document, document_id)
+                if document is None or not clinical_service.can_run(document):
+                    return
+                claimed = clinical_service.claim_clinical(session, document_id)
+            if claimed:
+                clinical_service.run_clinical(session_factory, settings, document_id)
+        except Exception:
+            logger.exception("Automatic clinical extraction could not start for document %s", document_id)
 
 
 # ---------------------------------------------------------------- read side

@@ -56,6 +56,12 @@ export const getImage = (id, imageId, opts) => request(`${docPath(id)}/images/${
 export const imageFileUrl = (id, imageId) => `/api${docPath(id)}/images/${encodeURIComponent(imageId)}/file`;
 export const pagePreviewUrl = (id, pageNumber) => `/api${docPath(id)}/pages/${pageNumber}/preview`;
 
+// Phase 5: clinical information extraction
+export const startClinical = (id, opts) => request(`${docPath(id)}/clinical-extraction`, { ...opts, method: "POST" });
+export const getClinicalStatus = (id, opts) => request(`${docPath(id)}/clinical-extraction`, opts);
+export const listClinicalEvidence = (id, { limit = 1000, offset = 0 } = {}, opts) =>
+  request(`${docPath(id)}/clinical-evidence?limit=${limit}&offset=${offset}`, opts);
+
 // fetch() cannot report upload progress, so uploads use XMLHttpRequest.
 export function uploadDocument(file, onProgress) {
   return new Promise((resolve, reject) => {

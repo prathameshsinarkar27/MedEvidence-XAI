@@ -68,6 +68,16 @@ class MultimodalCapability(BaseModel):
     max_image_bytes: int
 
 
+class ClinicalCapability(BaseModel):
+    extractor_version: str
+    approach: str
+    auto_clinical_extraction: bool
+    max_evidence_per_document: int
+    lexicon_sizes: dict[str, int]
+    entity_types: list[str]
+    assertions: list[str]
+
+
 class Capabilities(BaseModel):
     pdf_engine: str
     ocr: TesseractCapability
@@ -75,3 +85,4 @@ class Capabilities(BaseModel):
     ocr_dpi: int
     max_pdf_pages: int
     multimodal: MultimodalCapability | None = None  # Phase 4
+    clinical: ClinicalCapability | None = None  # Phase 5

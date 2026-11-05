@@ -3,7 +3,7 @@
 import sys
 from pathlib import Path
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 
 # The pure-Python `document_processing` library lives at the repository root (next to `backend/`),
 # so make the root importable however the app is started (uvicorn from backend/, alembic, pytest).

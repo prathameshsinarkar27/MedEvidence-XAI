@@ -30,6 +30,12 @@ class DocumentOut(BaseModel):
     multimodal_processed_at: datetime | None = None
     table_count: int | None = None
     image_count: int | None = None
+    # Phase 5
+    clinical_status: str = "not_processed"
+    clinical_error_code: str | None = None
+    clinical_error: str | None = None
+    clinical_processed_at: datetime | None = None
+    evidence_count: int | None = None
 
 
 class DocumentList(BaseModel):
