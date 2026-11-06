@@ -1,4 +1,4 @@
-"""Phase 5: clinical_evidence table + clinical extraction status columns on documents.
+"""clinical_evidence table + clinical extraction status columns on documents.
 
 Revision ID: 0005
 Revises: 0004

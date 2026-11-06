@@ -80,4 +80,5 @@ class ClinicalEvidence(Base):
     __table_args__ = (
         Index("ix_clinical_evidence_document_page", "document_id", "page_number"),
         Index("ix_clinical_evidence_document_type", "document_id", "entity_type"),
+        Index("ix_clinical_evidence_entity_name", "entity_name"),  # Phase 6: retrieval by entity across documents
     )

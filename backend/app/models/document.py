@@ -78,6 +78,16 @@ class Document(Base):
     evidence_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
     clinical_summary: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
+    # --- Phase 6: evidence index (own status, same vocabulary) ---
+    index_status: Mapped[str] = mapped_column(
+        String(30), nullable=False, default=PROCESSING_NOT_PROCESSED, server_default=PROCESSING_NOT_PROCESSED
+    )
+    index_error_code: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    index_error: Mapped[str | None] = mapped_column(Text, nullable=True)
+    indexed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    indexed_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    index_model: Mapped[str | None] = mapped_column(String(200), nullable=True)  # embedder name used for this document
+
     pages: Mapped[list["DocumentPage"]] = relationship(  # noqa: F821
         back_populates="document", cascade="all, delete-orphan", order_by="DocumentPage.page_number"
     )

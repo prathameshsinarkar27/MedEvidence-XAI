@@ -32,6 +32,7 @@ from app.models.document_table import DocumentTable
 from app.schemas.clinical import ClinicalStatusOut, EvidenceOut
 from app.schemas.multimodal import BoxOut, RegionOut
 from app.services.clinical_reset import reset_clinical
+from app.services.index_reset import reset_index
 from app.services.processing import resolve_stored_path
 from clinical_extraction import EXTRACTOR_VERSION, Evidence, TableInput, extract_table_evidence, extract_text_evidence
 from clinical_extraction.locator import PageLocator, build_page_locator
@@ -92,6 +93,24 @@ def run_clinical(session_factory: sessionmaker, settings: Settings, document_id:
             session.rollback()
             _mark_failed(session, document_id, "internal_error", "Extraction failed unexpectedly. See the server log.")
     logger.info("Clinical extraction finished for document %s in %.2fs", document_id, time.monotonic() - started)
+    if settings.auto_index_evidence:
+        _auto_index(session_factory, settings, document_id)
+
+
+def _auto_index(session_factory: sessionmaker, settings: Settings, document_id: uuid.UUID) -> None:
+    """Index the fresh evidence (Phase 6). Its own status; a problem here never changes the clinical status."""
+    from app.services import evidence_index as index_service  # local import keeps dependencies one-way
+
+    try:
+        with session_factory() as session:
+            document = session.get(Document, document_id)
+            if document is None or document.clinical_status not in READY_TEXT_STATUSES:
+                return
+            claimed = index_service.claim_index(session, document_id)
+        if claimed:
+            index_service.run_index(session_factory, settings, document_id)
+    except Exception:
+        logger.exception("Automatic evidence indexing could not start for document %s", document_id)
 
 
 def _mark_failed(session: Session, document_id: uuid.UUID, code: str, message: str) -> None:
@@ -139,6 +158,7 @@ def _run(session: Session, settings: Settings, document_id: uuid.UUID) -> None:
         logger.warning("Document %s disappeared before clinical extraction", document_id)
         return
 
+    reset_index(session, document_id)  # the vectors belong to the evidence being replaced
     session.execute(delete(ClinicalEvidence).where(ClinicalEvidence.document_id == document_id))
     document.clinical_status = PROCESSING_RUNNING
     document.clinical_page_count = None

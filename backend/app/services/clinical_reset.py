@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.models.clinical_evidence import ClinicalEvidence
 from app.models.document import PROCESSING_NOT_PROCESSED, Document
+from app.services.index_reset import reset_index
 
 
 def reset_clinical(session: Session, document_id: uuid.UUID) -> None:
@@ -14,6 +15,7 @@ def reset_clinical(session: Session, document_id: uuid.UUID) -> None:
 
     Evidence points at page numbers, table rows and images of a particular processing run, so it must not
     outlive them; running extraction again regenerates it."""
+    reset_index(session, document_id)  # vectors of the old evidence (Phase 6)
     session.execute(delete(ClinicalEvidence).where(ClinicalEvidence.document_id == document_id))
     session.execute(
         update(Document)

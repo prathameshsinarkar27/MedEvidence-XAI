@@ -13,6 +13,7 @@ from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from document_processing import ProcessingConfig  # repo root is put on sys.path by app/__init__.py
+from evidence_index import EmbedderConfig
 
 # backend/app/core/config.py -> repository root is three levels above `app/`
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -70,6 +71,18 @@ class Settings(BaseSettings):
     auto_clinical_extraction: bool = True  # run automatically after text (and table/image) processing
     max_evidence_per_document: int = Field(default=20000, ge=10, le=500_000)
 
+    # Phase 6: evidence index + semantic retrieval.
+    # `hashing` needs no download but matches words/spellings only (NOT meaning). `sentence-transformers` is the real
+    # semantic model: install requirements-embeddings.txt first (the model is downloaded once).
+    embedding_backend: Literal["hashing", "sentence-transformers"] = "hashing"
+    embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
+    embedding_dimension: int = Field(default=512, ge=16, le=4096)  # hashing backend only
+    embedding_local_files_only: bool = False  # never touch the network when loading the model
+    embedding_batch_size: int = Field(default=64, ge=1, le=1024)
+    vector_backend: Literal["faiss", "numpy"] = "faiss"
+    auto_index_evidence: bool = True  # index a document's evidence automatically after clinical extraction
+    search_max_top_k: int = Field(default=100, ge=1, le=1000)
+
     @field_validator("ocr_languages")
     @classmethod
     def _validate_ocr_languages(cls, value: str) -> str:
@@ -111,6 +124,16 @@ class Settings(BaseSettings):
             max_cells_per_table=self.max_cells_per_table,
             image_ocr=self.image_ocr,
             image_ocr_min_chars=self.image_ocr_min_chars,
+        )
+
+    @property
+    def embedder_config(self) -> EmbedderConfig:
+        return EmbedderConfig(
+            backend=self.embedding_backend,
+            model=self.embedding_model.strip(),
+            dimension=self.embedding_dimension,
+            local_files_only=self.embedding_local_files_only,
+            batch_size=self.embedding_batch_size,
         )
 
     @property
