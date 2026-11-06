@@ -9,7 +9,7 @@ Final-year B.Tech (CSE, AI & ML) project. The long-term goal is to turn uploaded
 traceable evidence and answer questions only when the evidence supports them:
 `answer → evidence → source document → page/region → confidence → reason`.
 
-## Current status: 5 — clinical information extraction
+## Current status: 6 — evidence index and semantic retrieval
 
 
 - **1:** repository layout, FastAPI backend, React + Vite + Tailwind frontend, `.env` configuration,
@@ -20,19 +20,24 @@ traceable evidence and answer questions only when the evidence supports them:
 
 - **3:** page-level text extraction (PyMuPDF, pdfplumber fallback), detection of pages with little or no text,
   Tesseract OCR fallback with clear setup errors, per-page method/status, processing status API, page content API,
-  extracted-text viewer. Method: [`docs/pdf-extraction-ocr.md`](docs/pdf-extraction-ocr.md).
+  extracted-text viewer.
 
 - **4:** table detection (rows, columns, cells, page, table ID, source box), embedded-image extraction (metadata,
   file, page, placement box), optional OCR of text printed inside images, a page preview with the source region
   highlighted, and APIs/UI to inspect tables, images, source page and region. Images are never interpreted (no
-  medical-image analysis). Method: [`docs/multimodal-processing.md`](docs/multimodal-processing.md).
+  medical-image analysis). 
 
 - **5:** rule- and lexicon-based extraction of lab results, vital signs, medications, conditions, symptoms and dates
   from text, OCR text, tables and image-OCR text, with negation/uncertainty/family-history handling, normalisation that keeps
   the original text, a `ClinicalEvidence` model with exact source text, offsets, page region and a heuristic confidence, APIs,
   and a viewer. No trained model. 
 
-**Not implemented yet**: evidence indexing, embeddings, retrieval, verification, conflict detection, QA.
+- **6:** every extracted evidence item gets a vector (stored in PostgreSQL, searched with exact FAISS/NumPy), search and
+  retrieval APIs (by query, entity, document, page, with filters) that return evidence with full provenance, and an Evidence
+  Explorer UI. The default embedding is offline and **lexical**; real semantic search needs the optional `sentence-transformers`
+  backend. 
+
+**Not implemented yet** : hybrid ranking, verification, conflict detection, QA.
 Nothing has been evaluated, including extraction, OCR, table/image detection and clinical-extraction accuracy ("Not yet evaluated").
 
 ## Repository layout
@@ -103,11 +108,6 @@ TEST_DATABASE_URL="postgresql+psycopg://user:PASSWORD@localhost:5432/testdb" pyt
 > The PostgreSQL integration tests **downgrade/upgrade the schema and delete all rows in `documents`** in
 > `TEST_DATABASE_URL`. Point it at a throwaway database, not data you care about.
 
-## Documentation
-
-See [`docs/`](docs/): [execution steps](docs/execution-steps.md), project overview, architecture, API, database design,
-developer guide, [PDF extraction & OCR](docs/pdf-extraction-ocr.md), [multimodal processing](docs/multimodal-processing.md), [clinical information extraction](docs/clinical-information-extraction.md), [evidence model](docs/evidence-model.md), [ML methodology](docs/ml-methodology.md), safety, limitations, and
-[changelog](docs/changelog.md).
 
 ## Safety and data
 

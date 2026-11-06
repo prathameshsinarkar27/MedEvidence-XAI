@@ -23,6 +23,11 @@ PHASE5_DOCUMENT_COLUMNS = {
     "clinical_status", "clinical_error_code", "clinical_error", "clinical_processed_at", "clinical_page_count",
     "clinical_pages_processed", "evidence_count", "clinical_summary",
 }
+PHASE6_DOCUMENT_COLUMNS = {"index_status", "index_error_code", "index_error", "indexed_at", "indexed_count", "index_model"}
+EMBEDDING_COLUMNS = {
+    "evidence_id", "document_id", "model_name", "backend", "text_version", "dimension", "embedding_text",
+    "text_sha256", "vector", "created_at",
+}
 EVIDENCE_COLUMNS = {
     "id", "document_id", "page_number", "ordinal", "modality", "entity_type", "entity_name", "assertion",
     "mention_text", "source_text", "source_field", "char_start", "char_end", "source_start", "source_end",
@@ -58,8 +63,8 @@ def _alembic_config() -> Config:
 
 def test_single_linear_migration_head():
     script = ScriptDirectory.from_config(_alembic_config())
-    assert script.get_heads() == ["0005"]
-    assert [r.revision for r in script.walk_revisions()] == ["0005", "0004", "0003", "0002", "0001"]
+    assert script.get_heads() == ["0006"]
+    assert [r.revision for r in script.walk_revisions()] == ["0006", "0005", "0004", "0003", "0002", "0001"]
 
 
 @pytest.mark.integration
@@ -79,10 +84,15 @@ def test_upgrade_and_downgrade_roundtrip(set_database_url, test_database_url):
         command.downgrade(cfg, "base")
         command.upgrade(cfg, "head")
         assert {"app_metadata", "documents", "document_pages"} <= set(inspect(engine).get_table_names())
-        assert phase() == "5"
+        assert phase() == "6"
         assert columns("documents") == (
             PHASE2_DOCUMENT_COLUMNS | PHASE3_DOCUMENT_COLUMNS | PHASE4_DOCUMENT_COLUMNS | PHASE5_DOCUMENT_COLUMNS
+            | PHASE6_DOCUMENT_COLUMNS
         )
+        assert columns("evidence_embeddings") == EMBEDDING_COLUMNS
+        embedding_fks = {fk["constrained_columns"][0]: (fk["referred_table"], fk["options"].get("ondelete", "").upper())
+                         for fk in inspect(engine).get_foreign_keys("evidence_embeddings")}
+        assert embedding_fks == {"evidence_id": ("clinical_evidence", "CASCADE"), "document_id": ("documents", "CASCADE")}
         assert columns("clinical_evidence") == EVIDENCE_COLUMNS
         evidence_fks = {fk["constrained_columns"][0]: (fk["referred_table"], fk["options"].get("ondelete", "").upper())
                         for fk in inspect(engine).get_foreign_keys("clinical_evidence")}
@@ -97,6 +107,13 @@ def test_upgrade_and_downgrade_roundtrip(set_database_url, test_database_url):
             foreign_keys = inspect(engine).get_foreign_keys(table)
             assert foreign_keys[0]["referred_table"] == parent
             assert foreign_keys[0]["options"].get("ondelete", "").upper() == "CASCADE"
+
+        command.downgrade(cfg, "0005")  # Phase 6 can be reverted without losing Phase 5
+        assert "evidence_embeddings" not in inspect(engine).get_table_names() and "clinical_evidence" in inspect(engine).get_table_names()
+        assert columns("documents") == (
+            PHASE2_DOCUMENT_COLUMNS | PHASE3_DOCUMENT_COLUMNS | PHASE4_DOCUMENT_COLUMNS | PHASE5_DOCUMENT_COLUMNS)
+        assert phase() == "5"
+        command.upgrade(cfg, "head")
 
         command.downgrade(cfg, "0004")  # Phase 5 can be reverted without losing Phase 4
         assert "clinical_evidence" not in inspect(engine).get_table_names() and "document_tables" in inspect(engine).get_table_names()
