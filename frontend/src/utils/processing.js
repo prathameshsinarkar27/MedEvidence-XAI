@@ -96,3 +96,7 @@ export const FLAG_SOURCE_LABELS = {
 
 export const CLINICAL_NOTE =
   "Rule-based extraction. Confidence is a heuristic score, not a probability; accuracy has not been evaluated.";
+
+// Phase 6
+export const INDEX_NOTE =
+  "Search returns stored evidence ranked by similarity to your query. Scores are similarities, not probabilities, and retrieval quality has not been evaluated.";

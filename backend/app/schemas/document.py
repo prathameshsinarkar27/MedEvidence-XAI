@@ -36,6 +36,13 @@ class DocumentOut(BaseModel):
     clinical_error: str | None = None
     clinical_processed_at: datetime | None = None
     evidence_count: int | None = None
+    # Phase 6
+    index_status: str = "not_processed"
+    index_error_code: str | None = None
+    index_error: str | None = None
+    indexed_at: datetime | None = None
+    indexed_count: int | None = None
+    index_model: str | None = None
 
 
 class DocumentList(BaseModel):

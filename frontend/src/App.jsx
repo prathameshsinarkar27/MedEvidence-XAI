@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Dashboard from "./components/Dashboard.jsx";
 import DocumentsPage from "./components/DocumentsPage.jsx";
+import EvidenceExplorer from "./components/EvidenceExplorer.jsx";
 
 const DISCLAIMER =
   "This is a research/educational prototype and is not a substitute for professional medical diagnosis or treatment.";
@@ -8,6 +9,7 @@ const DISCLAIMER =
 const TABS = [
   ["dashboard", "Dashboard"],
   ["documents", "Documents"],
+  ["evidence", "Evidence Explorer"],
 ];
 
 export default function App() {
@@ -19,7 +21,7 @@ export default function App() {
         <div className="mx-auto max-w-5xl px-6 pt-4">
           <h1 className="text-lg font-semibold">MedEvidence-XAI</h1>
           <p className="text-xs text-slate-500">
-            Evidence-grounded medical document understanding &mdash; Phase 5: clinical information extraction
+            Evidence-grounded medical document understanding &mdash; Phase 6: evidence index and semantic retrieval
           </p>
           <nav className="mt-3 flex gap-1" aria-label="Main">
             {TABS.map(([id, label]) => (
@@ -45,7 +47,7 @@ export default function App() {
         <div role="note" className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
           {DISCLAIMER}
         </div>
-        {tab === "dashboard" ? <Dashboard /> : <DocumentsPage />}
+        {tab === "dashboard" ? <Dashboard /> : tab === "documents" ? <DocumentsPage /> : <EvidenceExplorer />}
       </main>
     </div>
   );

@@ -15,6 +15,7 @@ from app.core.logging import configure_logging
 from app.core.middleware import UploadSizeLimitMiddleware
 from app.db.session import get_engine
 from app.services import clinical as clinical_service
+from app.services import evidence_index as index_service
 from app.services import multimodal as multimodal_service
 from app.services import processing as processing_service
 from app.services.upload_validation import UploadValidationError
@@ -38,6 +39,9 @@ def _recover_interrupted_processing() -> None:
         count = clinical_service.recover_interrupted_clinical(factory)
         if count:
             logger.warning("Marked %d interrupted clinical extraction run(s) as failed", count)
+        count = index_service.recover_interrupted_index(factory)
+        if count:
+            logger.warning("Marked %d interrupted evidence indexing run(s) as failed", count)
     except Exception as exc:  # database may be down or not yet migrated; health endpoint reports that
         logger.warning("Skipped interrupted-processing recovery (%s)", type(exc).__name__)
 

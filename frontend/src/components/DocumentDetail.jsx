@@ -7,6 +7,7 @@ import MultimodalPanel from "./MultimodalPanel.jsx";
 import MultimodalViewer from "./MultimodalViewer.jsx";
 import ClinicalPanel from "./ClinicalPanel.jsx";
 import ClinicalViewer from "./ClinicalViewer.jsx";
+import IndexPanel from "./IndexPanel.jsx";
 
 // `onProcessingChange` fires when the document's processing status changes (so the list can refresh).
 export default function DocumentDetail({ documentId, onProcessingChange }) {
@@ -144,6 +145,7 @@ export default function DocumentDetail({ documentId, onProcessingChange }) {
           mmStatus={mmStatus?.multimodal_status}
           onStatus={handleClinicalStatus}
         />
+        <IndexPanel documentId={documentId} clinicalStatus={clinicalStatus?.clinical_status} />
       </div>
       <PageViewer documentId={documentId} status={status} />
       <div className="lg:col-span-2">

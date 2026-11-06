@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { getCapabilities, getHealth } from "../api/client.js";
+import { getCapabilities, getHealth, getIndexOverview } from "../api/client.js";
 import StatusCard from "./StatusCard.jsx";
 import PhaseRoadmap from "./PhaseRoadmap.jsx";
 
@@ -9,6 +9,7 @@ export default function Dashboard() {
   const [health, setHealth] = useState(null);
   const [error, setError] = useState(null);
   const [capabilities, setCapabilities] = useState(null);
+  const [index, setIndex] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async (signal) => {
@@ -17,6 +18,7 @@ export default function Dashboard() {
       setHealth(await getHealth({ signal }));
       setError(null);
       setCapabilities(await getCapabilities({ signal }).catch(() => null));
+      setIndex(await getIndexOverview({ signal }).catch(() => null));
     } catch (err) {
       if (err.name === "AbortError") return;
       setHealth(null);
@@ -128,6 +130,40 @@ export default function Dashboard() {
               Image OCR is {capabilities.multimodal.image_ocr_default ? "on" : "off"} by default and needs Tesseract.
               Image content is never interpreted. Detection accuracy: Not yet evaluated.
             </p>
+          </>
+        )}
+      </StatusCard>
+
+      <StatusCard
+        title="Evidence index & retrieval"
+        badge={!index ? "Unknown" : !index.embedding_available || !index.vector_backend_available ? "Not set up" : index.is_semantic ? "Semantic model" : "Lexical matching"}
+        tone={!index ? "idle" : !index.embedding_available || !index.vector_backend_available ? "bad" : index.is_semantic ? "ok" : "warn"}
+      >
+        {!index && <p>Status unavailable until the backend responds.</p>}
+        {index && (
+          <>
+            <p>
+              Embedding: {index.embedding_model} &middot; vectors: {index.vector_backend} &middot; {index.indexed_evidence} of{" "}
+              {index.evidence_total} evidence items indexed in {index.indexed_documents} document
+              {index.indexed_documents === 1 ? "" : "s"}.
+            </p>
+            {!index.is_semantic && (
+              <p className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-amber-900">
+                The default offline embedding matches words and spellings only, not meaning. For semantic search install
+                <span className="font-mono"> requirements-embeddings.txt</span> and set
+                <span className="font-mono"> EMBEDDING_BACKEND=sentence-transformers</span>.
+              </p>
+            )}
+            {[index.embedding_message, index.vector_backend_message].filter(Boolean).map((m) => (
+              <p key={m} role="alert" className="rounded-md border border-rose-300 bg-rose-50 px-3 py-2 text-rose-900">{m}</p>
+            ))}
+            {index.stale_documents > 0 && (
+              <p className="text-amber-800">
+                {index.stale_documents} document(s) were indexed with a different embedding and are not searchable until
+                re-indexed (POST /api/evidence/index/rebuild).
+              </p>
+            )}
+            <p className="text-xs text-slate-400">Retrieval quality: Not yet evaluated.</p>
           </>
         )}
       </StatusCard>

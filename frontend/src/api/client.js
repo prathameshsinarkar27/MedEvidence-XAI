@@ -62,6 +62,21 @@ export const getClinicalStatus = (id, opts) => request(`${docPath(id)}/clinical-
 export const listClinicalEvidence = (id, { limit = 1000, offset = 0 } = {}, opts) =>
   request(`${docPath(id)}/clinical-evidence?limit=${limit}&offset=${offset}`, opts);
 
+// Phase 6: evidence index + retrieval
+export const startIndexing = (id, opts) => request(`${docPath(id)}/evidence-index`, { ...opts, method: "POST" });
+export const getIndexStatus = (id, opts) => request(`${docPath(id)}/evidence-index`, opts);
+export const getIndexOverview = (opts) => request("/evidence/index", opts);
+export const rebuildIndex = (opts) => request("/evidence/index/rebuild", { ...opts, method: "POST" });
+
+function query(params) {
+  const q = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) if (v !== undefined && v !== null && v !== "") q.set(k, String(v));
+  return q.toString();
+}
+export const searchEvidence = (params, opts) => request(`/evidence/search?${query(params)}`, opts);
+export const browseEvidence = (params, opts) => request(`/evidence?${query(params)}`, opts);
+export const listEntities = (params = {}, opts) => request(`/evidence/entities?${query(params)}`, opts);
+
 // fetch() cannot report upload progress, so uploads use XMLHttpRequest.
 export function uploadDocument(file, onProgress) {
   return new Promise((resolve, reject) => {
