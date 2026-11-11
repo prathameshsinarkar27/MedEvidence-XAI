@@ -14,6 +14,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from document_processing import ProcessingConfig  # repo root is put on sys.path by app/__init__.py
 from evidence_index import EmbedderConfig
+from hybrid_retrieval import Weights
 
 # backend/app/core/config.py -> repository root is three levels above `app/`
 REPO_ROOT = Path(__file__).resolve().parents[3]
@@ -83,6 +84,17 @@ class Settings(BaseSettings):
     auto_index_evidence: bool = True  # index a document's evidence automatically after clinical extraction
     search_max_top_k: int = Field(default=100, ge=1, le=1000)
 
+    # Phase 7: hybrid ranking. final_score = sum(weight * component); see docs/retrieval.md and
+    # docs/evaluation-retrieval.md. The defaults were chosen on the dev split of a small synthetic benchmark with the
+    # lexical (hashing) embedding: re-tune (scripts/evaluate_retrieval.py) after switching embedding. All weights >= 0.
+    rank_weight_semantic: float = Field(default=0.85, ge=0, le=100)
+    rank_weight_keyword: float = Field(default=0.0, ge=0, le=100)
+    rank_weight_entity: float = Field(default=1.21, ge=0, le=100)
+    rank_weight_temporal: float = Field(default=1.38, ge=0, le=100)
+    rank_weight_confidence: float = Field(default=0.0, ge=0, le=100)
+    rank_weight_source: float = Field(default=0.05, ge=0, le=100)
+    ranking_candidate_pool: int = Field(default=100, ge=10, le=5000)  # semantic candidates considered per query
+
     @field_validator("ocr_languages")
     @classmethod
     def _validate_ocr_languages(cls, value: str) -> str:
@@ -134,6 +146,13 @@ class Settings(BaseSettings):
             dimension=self.embedding_dimension,
             local_files_only=self.embedding_local_files_only,
             batch_size=self.embedding_batch_size,
+        )
+
+    @property
+    def rank_weights(self) -> Weights:
+        return Weights(
+            semantic=self.rank_weight_semantic, keyword=self.rank_weight_keyword, entity=self.rank_weight_entity,
+            temporal=self.rank_weight_temporal, confidence=self.rank_weight_confidence, source=self.rank_weight_source,
         )
 
     @property
