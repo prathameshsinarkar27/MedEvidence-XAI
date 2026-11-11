@@ -86,7 +86,7 @@ def _days(a: str, b: str) -> int:
     return abs((date.fromisoformat(a) - date.fromisoformat(b)).days)
 
 
-def _entity_score(name: str, wanted: list[str]) -> float:
+def entity_score(name: str, wanted: list[str]) -> float:
     if not wanted:
         return 0.0
     lowered = name.casefold()
@@ -118,7 +118,7 @@ def score_components(
 ) -> list[ScoredItem]:
     """Compute all component scores for the candidate items. `semantic` = cosine per id, `keyword_raw` = BM25 per id."""
     top_keyword = max(keyword_raw.values(), default=0.0)
-    entity = {i.id: _entity_score(i.entity_name, analysis.entities) for i in items}
+    entity = {i.id: entity_score(i.entity_name, analysis.entities) for i in items}
 
     # recency reference: dated items that match the named entity (or all dated items when none is named)
     recency: dict[str, float] = {}

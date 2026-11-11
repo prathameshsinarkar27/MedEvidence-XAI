@@ -13,6 +13,7 @@ from hybrid_retrieval.ranking import (
     EvidenceFeatures,
     ScoredItem,
     Weights,
+    entity_score,
     fuse,
     rank,
     score_components,
@@ -20,5 +21,5 @@ from hybrid_retrieval.ranking import (
 
 __all__ = [
     "BM25Index", "COMPONENTS", "EvidenceFeatures", "FORMULA", "QueryAnalysis", "ScoredItem", "Weights",
-    "analyze_query", "fuse", "rank", "score_components", "tokenize",
+    "analyze_query", "entity_score", "fuse", "rank", "score_components", "tokenize",
 ]

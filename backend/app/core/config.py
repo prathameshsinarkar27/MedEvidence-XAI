@@ -14,6 +14,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from document_processing import ProcessingConfig  # repo root is put on sys.path by app/__init__.py
 from evidence_index import EmbedderConfig
+from evidence_reasoning import ReasoningConfig, VerifyWeights
 from hybrid_retrieval import Weights
 
 # backend/app/core/config.py -> repository root is three levels above `app/`
@@ -95,6 +96,27 @@ class Settings(BaseSettings):
     rank_weight_source: float = Field(default=0.05, ge=0, le=100)
     ranking_candidate_pool: int = Field(default=100, ge=10, le=5000)  # semantic candidates considered per query
 
+    # Phase 8: evidence verification and conflict detection. evidence_score = weighted mean of the applicable components.
+    # All values are engineering defaults chosen by reasoning, NOT tuned or calibrated on data ("Not yet evaluated").
+    verify_weight_relevance: float = Field(default=1.0, ge=0, le=100)
+    verify_weight_entity: float = Field(default=1.5, ge=0, le=100)
+    verify_weight_value: float = Field(default=0.5, ge=0, le=100)
+    verify_weight_temporal: float = Field(default=1.0, ge=0, le=100)
+    verify_weight_confidence: float = Field(default=0.75, ge=0, le=100)
+    verify_weight_source: float = Field(default=0.75, ge=0, le=100)
+    verify_weight_directness: float = Field(default=2.0, ge=0, le=100)
+    verify_weight_agreement: float = Field(default=0.5, ge=0, le=100)
+    verify_supported_score: float = Field(default=0.70, ge=0, le=1)  # evidence_score for an item to count as supporting
+    verify_min_relevant_score: float = Field(default=0.35, ge=0, le=1)  # below this an item is excluded
+    verify_min_semantic_no_entity: float = Field(default=0.30, ge=0, le=1)
+    verify_undated_temporal_score: float = Field(default=0.25, ge=0, le=1)
+    verify_candidates: int = Field(default=30, ge=1, le=1000)  # evidence items retrieved per question
+    # Largest relative difference still called "measurement variation" (same or unknown time). Not clinical thresholds.
+    conflict_tolerance_lab: float = Field(default=0.05, ge=0, le=1)
+    conflict_tolerance_vital: float = Field(default=0.10, ge=0, le=1)
+    conflict_tolerance_medication: float = Field(default=0.0, ge=0, le=1)
+    conflict_tolerance_default: float = Field(default=0.05, ge=0, le=1)
+
     @field_validator("ocr_languages")
     @classmethod
     def _validate_ocr_languages(cls, value: str) -> str:
@@ -154,6 +176,18 @@ class Settings(BaseSettings):
             semantic=self.rank_weight_semantic, keyword=self.rank_weight_keyword, entity=self.rank_weight_entity,
             temporal=self.rank_weight_temporal, confidence=self.rank_weight_confidence, source=self.rank_weight_source,
         )
+
+    @property
+    def reasoning_config(self) -> ReasoningConfig:
+        return ReasoningConfig(
+            weights=VerifyWeights(
+                relevance=self.verify_weight_relevance, entity=self.verify_weight_entity, value=self.verify_weight_value,
+                temporal=self.verify_weight_temporal, confidence=self.verify_weight_confidence, source=self.verify_weight_source,
+                directness=self.verify_weight_directness, agreement=self.verify_weight_agreement),
+            supported_score=self.verify_supported_score, min_relevant_score=self.verify_min_relevant_score,
+            min_semantic_no_entity=self.verify_min_semantic_no_entity, undated_temporal_score=self.verify_undated_temporal_score,
+            tolerance_lab=self.conflict_tolerance_lab, tolerance_vital=self.conflict_tolerance_vital,
+            tolerance_medication=self.conflict_tolerance_medication, tolerance_default=self.conflict_tolerance_default)
 
     @property
     def max_upload_size_bytes(self) -> int:

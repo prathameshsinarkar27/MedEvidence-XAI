@@ -1,6 +1,6 @@
-"""Hybrid retrieval use-cases: candidate generation, component scoring, fusion.
+"""Hybrid retrieval use-cases (Phase 7): candidate generation, component scoring, fusion.
 
-Semantic scores come from the vector index; keyword scores from an in-memory BM25 index over the same evidence
+Semantic scores come from the Phase 6 vector index; keyword scores from an in-memory BM25 index over the same evidence
 text; entity/temporal/confidence/source scores from stored fields. The corpus (features + BM25) is rebuilt in memory
 when the stored evidence changes. Retrieval returns evidence with a full score breakdown, never an answer.
 """
@@ -172,8 +172,8 @@ def prepare(session: Session, settings: Settings, query: str, filters: dict | No
     candidate_ids = set(sorted((i for i in semantic if semantic[i] > 0), key=lambda i: -semantic[i])[:pool])
     candidate_ids |= set(keyword)
     if analysis.entities:
-        from hybrid_retrieval.ranking import _entity_score
-        candidate_ids |= {i for i in eligible if _entity_score(corpus.features[i].entity_name, analysis.entities) > 0}
+        from hybrid_retrieval.ranking import entity_score
+        candidate_ids |= {i for i in eligible if entity_score(corpus.features[i].entity_name, analysis.entities) > 0}
     items = score_components(
         analysis, [corpus.features[i] for i in sorted(candidate_ids)], semantic, keyword,
         {i: corpus.bm25.matched_terms(analysis.tokens, i) for i in candidate_ids})

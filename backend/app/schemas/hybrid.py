@@ -1,4 +1,4 @@
-"""Response models for hybrid retrieval and ranking."""
+"""Response models for hybrid retrieval and ranking (Phase 7)."""
 
 from pydantic import BaseModel
 
