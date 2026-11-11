@@ -1,0 +1,733 @@
+{
+ "generated_utc": "2026-11-05T11:17:28+00:00",
+ "environment": {
+  "python": "3.13.18",
+  "embedding": "hashing (lexical, no trained model)",
+  "embedding_model": "hashing-v1-d512",
+  "vector_backend": "faiss"
+ },
+ "benchmark": {
+  "documents": 6,
+  "evidence_items": 85,
+  "queries_scored": {
+   "dev": 22,
+   "test": 21
+  },
+  "queries_total": {
+   "dev": 22,
+   "test": 22
+  },
+  "unresolved_judgments": {
+   "q41": [
+    {
+     "document": "bench_f_scanned.pdf",
+     "entity_name": "Thyroid stimulating hormone",
+     "entity_type": null,
+     "date_iso": null,
+     "value_text": null,
+     "assertion": null
+    }
+   ]
+  }
+ },
+ "weight_selection": {
+  "split": "dev",
+  "grid_size": 1530,
+  "best_dev_key(mrr,p@5,r@10)": [
+   0.9130634071810543,
+   0.3181818181818182,
+   0.9090909090909091
+  ],
+  "plateau_size": 34,
+  "tuned_weights": {
+   "semantic": 0.85,
+   "keyword": 0.0,
+   "entity": 1.21,
+   "temporal": 1.38,
+   "confidence": 0.0,
+   "source": 0.05
+  }
+ },
+ "results": {
+  "semantic_only (Phase 6 behaviour)": {
+   "dev": {
+    "n": 22,
+    "mrr": 0.7635828877005347,
+    "precision@1": 0.7272727272727273,
+    "recall@1": 0.49242424242424243,
+    "precision@3": 0.4393939393939394,
+    "recall@3": 0.7575757575757577,
+    "precision@5": 0.2636363636363636,
+    "recall@5": 0.7575757575757577,
+    "precision@10": 0.13636363636363635,
+    "recall@10": 0.8030303030303031
+   },
+   "test": {
+    "n": 21,
+    "mrr": 0.7868480725623583,
+    "precision@1": 0.6666666666666666,
+    "recall@1": 0.5436507936507936,
+    "precision@3": 0.4126984126984127,
+    "recall@3": 0.8650793650793651,
+    "precision@5": 0.26666666666666666,
+    "recall@5": 0.8928571428571429,
+    "precision@10": 0.14285714285714285,
+    "recall@10": 0.9523809523809523
+   }
+  },
+  "keyword_only (BM25)": {
+   "dev": {
+    "n": 22,
+    "mrr": 0.696969696969697,
+    "precision@1": 0.6363636363636364,
+    "recall@1": 0.4318181818181818,
+    "precision@3": 0.4242424242424242,
+    "recall@3": 0.7424242424242423,
+    "precision@5": 0.2636363636363636,
+    "recall@5": 0.7575757575757577,
+    "precision@10": 0.1318181818181818,
+    "recall@10": 0.7575757575757577
+   },
+   "test": {
+    "n": 21,
+    "mrr": 0.7714285714285714,
+    "precision@1": 0.6666666666666666,
+    "recall@1": 0.5793650793650793,
+    "precision@3": 0.38095238095238093,
+    "recall@3": 0.8412698412698413,
+    "precision@5": 0.24761904761904763,
+    "recall@5": 0.8690476190476191,
+    "precision@10": 0.14285714285714285,
+    "recall@10": 0.9523809523809523
+   }
+  },
+  "entity_only": {
+   "dev": {
+    "n": 22,
+    "mrr": 0.856060606060606,
+    "precision@1": 0.8181818181818182,
+    "recall@1": 0.553030303030303,
+    "precision@3": 0.5303030303030303,
+    "recall@3": 0.9090909090909091,
+    "precision@5": 0.3181818181818182,
+    "recall@5": 0.9090909090909091,
+    "precision@10": 0.1590909090909091,
+    "recall@10": 0.9090909090909091
+   },
+   "test": {
+    "n": 21,
+    "mrr": 0.753968253968254,
+    "precision@1": 0.7142857142857143,
+    "recall@1": 0.5952380952380952,
+    "precision@3": 0.36507936507936506,
+    "recall@3": 0.7857142857142857,
+    "precision@5": 0.21904761904761902,
+    "recall@5": 0.7857142857142857,
+    "precision@10": 0.10952380952380951,
+    "recall@10": 0.7857142857142857
+   }
+  },
+  "equal_weights (all 1)": {
+   "dev": {
+    "n": 22,
+    "mrr": 0.818154761904762,
+    "precision@1": 0.7727272727272727,
+    "recall@1": 0.537878787878788,
+    "precision@3": 0.45454545454545453,
+    "recall@3": 0.8030303030303031,
+    "precision@5": 0.30000000000000004,
+    "recall@5": 0.8787878787878788,
+    "precision@10": 0.1590909090909091,
+    "recall@10": 0.9090909090909091
+   },
+   "test": {
+    "n": 21,
+    "mrr": 0.8762866762866763,
+    "precision@1": 0.8571428571428571,
+    "recall@1": 0.7380952380952381,
+    "precision@3": 0.39682539682539675,
+    "recall@3": 0.8571428571428571,
+    "precision@5": 0.24761904761904763,
+    "recall@5": 0.8690476190476191,
+    "precision@10": 0.14285714285714285,
+    "recall@10": 0.9523809523809523
+   }
+  },
+  "initial_default (1,1,1,1,0.1,0.1)": {
+   "dev": {
+    "n": 22,
+    "mrr": 0.8118911789964421,
+    "precision@1": 0.7727272727272727,
+    "recall@1": 0.537878787878788,
+    "precision@3": 0.45454545454545453,
+    "recall@3": 0.8030303030303031,
+    "precision@5": 0.30000000000000004,
+    "recall@5": 0.8787878787878788,
+    "precision@10": 0.1590909090909091,
+    "recall@10": 0.9090909090909091
+   },
+   "test": {
+    "n": 21,
+    "mrr": 0.877109440267335,
+    "precision@1": 0.8571428571428571,
+    "recall@1": 0.7380952380952381,
+    "precision@3": 0.39682539682539675,
+    "recall@3": 0.8571428571428571,
+    "precision@5": 0.24761904761904763,
+    "recall@5": 0.8690476190476191,
+    "precision@10": 0.14285714285714285,
+    "recall@10": 0.9523809523809523
+   }
+  },
+  "tuned_on_dev (plateau centroid)": {
+   "dev": {
+    "n": 22,
+    "mrr": 0.9130634071810543,
+    "precision@1": 0.9090909090909091,
+    "recall@1": 0.6439393939393939,
+    "precision@3": 0.5303030303030303,
+    "recall@3": 0.9090909090909091,
+    "precision@5": 0.3181818181818182,
+    "recall@5": 0.9090909090909091,
+    "precision@10": 0.1590909090909091,
+    "recall@10": 0.9090909090909091
+   },
+   "test": {
+    "n": 21,
+    "mrr": 0.9129818594104309,
+    "precision@1": 0.9047619047619048,
+    "recall@1": 0.75,
+    "precision@3": 0.42857142857142855,
+    "recall@3": 0.8809523809523809,
+    "precision@5": 0.26666666666666666,
+    "recall@5": 0.8928571428571429,
+    "precision@10": 0.14285714285714285,
+    "recall@10": 0.9523809523809523
+   }
+  }
+ },
+ "per_query_first_relevant_rank": {
+  "q01": {
+   "split": "dev",
+   "category": "entity",
+   "text": "HbA1c results",
+   "relevant_items": 3,
+   "semantic_only (Phase 6 behaviour)": 1,
+   "keyword_only (BM25)": 3,
+   "entity_only": 1,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q02": {
+   "split": "test",
+   "category": "entity",
+   "text": "glycated hemoglobin",
+   "relevant_items": 3,
+   "semantic_only (Phase 6 behaviour)": 2,
+   "keyword_only (BM25)": 2,
+   "entity_only": 1,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q03": {
+   "split": "dev",
+   "category": "synonym",
+   "text": "blood sugar",
+   "relevant_items": 3,
+   "semantic_only (Phase 6 behaviour)": 25,
+   "keyword_only (BM25)": null,
+   "entity_only": 1,
+   "equal_weights (all 1)": 5,
+   "initial_default (1,1,1,1,0.1,0.1)": 5,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q04": {
+   "split": "test",
+   "category": "synonym",
+   "text": "fasting blood glucose results",
+   "relevant_items": 3,
+   "semantic_only (Phase 6 behaviour)": 1,
+   "keyword_only (BM25)": 1,
+   "entity_only": 1,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q05": {
+   "split": "dev",
+   "category": "entity",
+   "text": "potassium level",
+   "relevant_items": 3,
+   "semantic_only (Phase 6 behaviour)": 1,
+   "keyword_only (BM25)": 1,
+   "entity_only": 1,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q06": {
+   "split": "test",
+   "category": "entity",
+   "text": "sodium",
+   "relevant_items": 3,
+   "semantic_only (Phase 6 behaviour)": 1,
+   "keyword_only (BM25)": 1,
+   "entity_only": 1,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q07": {
+   "split": "dev",
+   "category": "medication",
+   "text": "metformin dose",
+   "relevant_items": 2,
+   "semantic_only (Phase 6 behaviour)": 1,
+   "keyword_only (BM25)": 1,
+   "entity_only": 1,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q08": {
+   "split": "test",
+   "category": "medication",
+   "text": "atorvastatin",
+   "relevant_items": 1,
+   "semantic_only (Phase 6 behaviour)": 1,
+   "keyword_only (BM25)": 1,
+   "entity_only": 1,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q09": {
+   "split": "dev",
+   "category": "entity",
+   "text": "blood pressure readings",
+   "relevant_items": 3,
+   "semantic_only (Phase 6 behaviour)": 1,
+   "keyword_only (BM25)": 1,
+   "entity_only": 1,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q10": {
+   "split": "test",
+   "category": "value",
+   "text": "BP 150/95",
+   "relevant_items": 1,
+   "semantic_only (Phase 6 behaviour)": 1,
+   "keyword_only (BM25)": 1,
+   "entity_only": 1,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q11": {
+   "split": "dev",
+   "category": "entity",
+   "text": "creatinine kidney function",
+   "relevant_items": 2,
+   "semantic_only (Phase 6 behaviour)": 1,
+   "keyword_only (BM25)": 1,
+   "entity_only": 1,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q12": {
+   "split": "test",
+   "category": "entity",
+   "text": "cholesterol",
+   "relevant_items": 2,
+   "semantic_only (Phase 6 behaviour)": 1,
+   "keyword_only (BM25)": 1,
+   "entity_only": 1,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q13": {
+   "split": "dev",
+   "category": "symptom",
+   "text": "chest pain",
+   "relevant_items": 2,
+   "semantic_only (Phase 6 behaviour)": 1,
+   "keyword_only (BM25)": 1,
+   "entity_only": 1,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q14": {
+   "split": "test",
+   "category": "symptom",
+   "text": "fever",
+   "relevant_items": 1,
+   "semantic_only (Phase 6 behaviour)": 1,
+   "keyword_only (BM25)": 1,
+   "entity_only": 1,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q15": {
+   "split": "dev",
+   "category": "symptom",
+   "text": "fatigue",
+   "relevant_items": 3,
+   "semantic_only (Phase 6 behaviour)": 1,
+   "keyword_only (BM25)": 1,
+   "entity_only": 1,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q16": {
+   "split": "test",
+   "category": "symptom",
+   "text": "weight loss",
+   "relevant_items": 1,
+   "semantic_only (Phase 6 behaviour)": 1,
+   "keyword_only (BM25)": 1,
+   "entity_only": 1,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q17": {
+   "split": "dev",
+   "category": "temporal",
+   "text": "HbA1c on 12-Aug-2026",
+   "relevant_items": 1,
+   "semantic_only (Phase 6 behaviour)": 2,
+   "keyword_only (BM25)": 2,
+   "entity_only": 1,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q18": {
+   "split": "test",
+   "category": "temporal",
+   "text": "HbA1c in May 2026",
+   "relevant_items": 1,
+   "semantic_only (Phase 6 behaviour)": 2,
+   "keyword_only (BM25)": 2,
+   "entity_only": 1,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q19": {
+   "split": "dev",
+   "category": "temporal",
+   "text": "latest HbA1c",
+   "relevant_items": 1,
+   "semantic_only (Phase 6 behaviour)": 7,
+   "keyword_only (BM25)": null,
+   "entity_only": 3,
+   "equal_weights (all 1)": 2,
+   "initial_default (1,1,1,1,0.1,0.1)": 3,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q20": {
+   "split": "test",
+   "category": "temporal",
+   "text": "earliest potassium",
+   "relevant_items": 1,
+   "semantic_only (Phase 6 behaviour)": 2,
+   "keyword_only (BM25)": 1,
+   "entity_only": 1,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q21": {
+   "split": "dev",
+   "category": "temporal",
+   "text": "potassium in August 2026",
+   "relevant_items": 1,
+   "semantic_only (Phase 6 behaviour)": 1,
+   "keyword_only (BM25)": 2,
+   "entity_only": 2,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q22": {
+   "split": "test",
+   "category": "temporal",
+   "text": "most recent fasting glucose",
+   "relevant_items": 1,
+   "semantic_only (Phase 6 behaviour)": 3,
+   "keyword_only (BM25)": 3,
+   "entity_only": 3,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q23": {
+   "split": "dev",
+   "category": "temporal",
+   "text": "blood pressure on 21-Jun-2026",
+   "relevant_items": 1,
+   "semantic_only (Phase 6 behaviour)": 1,
+   "keyword_only (BM25)": 1,
+   "entity_only": 1,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q24": {
+   "split": "test",
+   "category": "temporal",
+   "text": "latest oxygen saturation",
+   "relevant_items": 1,
+   "semantic_only (Phase 6 behaviour)": 2,
+   "keyword_only (BM25)": 2,
+   "entity_only": 2,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q25": {
+   "split": "dev",
+   "category": "entity",
+   "text": "oxygen saturation",
+   "relevant_items": 2,
+   "semantic_only (Phase 6 behaviour)": 1,
+   "keyword_only (BM25)": 1,
+   "entity_only": 1,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q26": {
+   "split": "test",
+   "category": "temporal",
+   "text": "findings on 30-Aug-2026",
+   "relevant_items": 4,
+   "semantic_only (Phase 6 behaviour)": 1,
+   "keyword_only (BM25)": 5,
+   "entity_only": null,
+   "equal_weights (all 1)": 5,
+   "initial_default (1,1,1,1,0.1,0.1)": 5,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q27": {
+   "split": "dev",
+   "category": "multi_document",
+   "text": "penicillin allergy",
+   "relevant_items": 1,
+   "semantic_only (Phase 6 behaviour)": 1,
+   "keyword_only (BM25)": 1,
+   "entity_only": 1,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q28": {
+   "split": "test",
+   "category": "multi_document",
+   "text": "family history of myocardial infarction",
+   "relevant_items": 1,
+   "semantic_only (Phase 6 behaviour)": 1,
+   "keyword_only (BM25)": 1,
+   "entity_only": 1,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q29": {
+   "split": "dev",
+   "category": "medication",
+   "text": "warfarin and INR",
+   "relevant_items": 2,
+   "semantic_only (Phase 6 behaviour)": 1,
+   "keyword_only (BM25)": 1,
+   "entity_only": 1,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q30": {
+   "split": "test",
+   "category": "medication",
+   "text": "amoxicillin",
+   "relevant_items": 1,
+   "semantic_only (Phase 6 behaviour)": 1,
+   "keyword_only (BM25)": 1,
+   "entity_only": 1,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q31": {
+   "split": "dev",
+   "category": "value",
+   "text": "HbA1c 7.8",
+   "relevant_items": 1,
+   "semantic_only (Phase 6 behaviour)": 1,
+   "keyword_only (BM25)": 1,
+   "entity_only": 1,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q32": {
+   "split": "test",
+   "category": "value",
+   "text": "troponin",
+   "relevant_items": 1,
+   "semantic_only (Phase 6 behaviour)": 1,
+   "keyword_only (BM25)": 1,
+   "entity_only": null,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q33": {
+   "split": "dev",
+   "category": "semantic_gap",
+   "text": "inflammation marker",
+   "relevant_items": 1,
+   "semantic_only (Phase 6 behaviour)": 35,
+   "keyword_only (BM25)": null,
+   "entity_only": null,
+   "equal_weights (all 1)": 48,
+   "initial_default (1,1,1,1,0.1,0.1)": 39,
+   "tuned_on_dev (plateau centroid)": 35
+  },
+  "q34": {
+   "split": "test",
+   "category": "semantic_gap",
+   "text": "blood thinner",
+   "relevant_items": 1,
+   "semantic_only (Phase 6 behaviour)": 21,
+   "keyword_only (BM25)": null,
+   "entity_only": null,
+   "equal_weights (all 1)": 11,
+   "initial_default (1,1,1,1,0.1,0.1)": 19,
+   "tuned_on_dev (plateau centroid)": 21
+  },
+  "q35": {
+   "split": "dev",
+   "category": "semantic_gap",
+   "text": "heart rhythm problem",
+   "relevant_items": 1,
+   "semantic_only (Phase 6 behaviour)": 17,
+   "keyword_only (BM25)": null,
+   "entity_only": null,
+   "equal_weights (all 1)": 35,
+   "initial_default (1,1,1,1,0.1,0.1)": 19,
+   "tuned_on_dev (plateau centroid)": 17
+  },
+  "q36": {
+   "split": "test",
+   "category": "semantic_gap",
+   "text": "thyroid medication",
+   "relevant_items": 1,
+   "semantic_only (Phase 6 behaviour)": 7,
+   "keyword_only (BM25)": 6,
+   "entity_only": null,
+   "equal_weights (all 1)": 9,
+   "initial_default (1,1,1,1,0.1,0.1)": 6,
+   "tuned_on_dev (plateau centroid)": 8
+  },
+  "q37": {
+   "split": "dev",
+   "category": "condition",
+   "text": "high blood pressure",
+   "relevant_items": 1,
+   "semantic_only (Phase 6 behaviour)": 35,
+   "keyword_only (BM25)": null,
+   "entity_only": 1,
+   "equal_weights (all 1)": 4,
+   "initial_default (1,1,1,1,0.1,0.1)": 4,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q38": {
+   "split": "test",
+   "category": "condition",
+   "text": "pneumonia",
+   "relevant_items": 1,
+   "semantic_only (Phase 6 behaviour)": 1,
+   "keyword_only (BM25)": 1,
+   "entity_only": 1,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q39": {
+   "split": "dev",
+   "category": "synonym",
+   "text": "white blood cells",
+   "relevant_items": 1,
+   "semantic_only (Phase 6 behaviour)": 1,
+   "keyword_only (BM25)": 1,
+   "entity_only": 1,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q40": {
+   "split": "test",
+   "category": "synonym",
+   "text": "heart rate pulse",
+   "relevant_items": 1,
+   "semantic_only (Phase 6 behaviour)": 1,
+   "keyword_only (BM25)": 1,
+   "entity_only": 1,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q42": {
+   "split": "dev",
+   "category": "ocr",
+   "text": "levothyroxine dose",
+   "relevant_items": 1,
+   "semantic_only (Phase 6 behaviour)": 1,
+   "keyword_only (BM25)": 1,
+   "entity_only": 1,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q43": {
+   "split": "test",
+   "category": "table",
+   "text": "lipid panel triglycerides",
+   "relevant_items": 1,
+   "semantic_only (Phase 6 behaviour)": 1,
+   "keyword_only (BM25)": 1,
+   "entity_only": 1,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  },
+  "q44": {
+   "split": "dev",
+   "category": "symptom",
+   "text": "shortness of breath",
+   "relevant_items": 1,
+   "semantic_only (Phase 6 behaviour)": 1,
+   "keyword_only (BM25)": 1,
+   "entity_only": 1,
+   "equal_weights (all 1)": 1,
+   "initial_default (1,1,1,1,0.1,0.1)": 1,
+   "tuned_on_dev (plateau centroid)": 1
+  }
+ },
+ "caveats": [
+  "Small synthetic benchmark (6 documents, 44 queries): differences of a few points are noise.",
+  "Weights were tuned on the dev split and the final design was fixed before the test split was evaluated.",
+  "Default embedding is lexical (hashing). The sentence-transformers backend has not been evaluated.",
+  "Judgments were written by the developer from the document text; no inter-annotator agreement exists."
+ ]
+}

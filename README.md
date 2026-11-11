@@ -9,8 +9,10 @@ Final-year B.Tech (CSE, AI & ML) project. The long-term goal is to turn uploaded
 traceable evidence and answer questions only when the evidence supports them:
 `answer → evidence → source document → page/region → confidence → reason`.
 
-## Current status: 6 — evidence index and semantic retrieval
+## Current status: hybrid retrieval and evidence ranking
 
+> **New here? Start with [`docs/execution-steps.md`](docs/execution-steps.md)**, the step-by-step guide for
+> installing, running and checking.
 
 - **1:** repository layout, FastAPI backend, React + Vite + Tailwind frontend, `.env` configuration,
   PostgreSQL connection, Alembic migrations, health-check API, status dashboard, logging.
@@ -25,20 +27,21 @@ traceable evidence and answer questions only when the evidence supports them:
 - **4:** table detection (rows, columns, cells, page, table ID, source box), embedded-image extraction (metadata,
   file, page, placement box), optional OCR of text printed inside images, a page preview with the source region
   highlighted, and APIs/UI to inspect tables, images, source page and region. Images are never interpreted (no
-  medical-image analysis). 
+  medical-image analysis).
 
 - **5:** rule- and lexicon-based extraction of lab results, vital signs, medications, conditions, symptoms and dates
   from text, OCR text, tables and image-OCR text, with negation/uncertainty/family-history handling, normalisation that keeps
   the original text, a `ClinicalEvidence` model with exact source text, offsets, page region and a heuristic confidence, APIs,
-  and a viewer. No trained model. 
+  and a viewer. No trained model.
 
 - **6:** every extracted evidence item gets a vector (stored in PostgreSQL, searched with exact FAISS/NumPy), search and
   retrieval APIs (by query, entity, document, page, with filters) that return evidence with full provenance, and an Evidence
   Explorer UI. The default embedding is offline and **lexical**; real semantic search needs the optional `sentence-transformers`
-  backend. 
+  backend.
 
-**Not implemented yet** : hybrid ranking, verification, conflict detection, QA.
-Nothing has been evaluated, including extraction, OCR, table/image detection and clinical-extraction accuracy ("Not yet evaluated").
+- **7:** hybrid retrieval that fuses semantic similarity, BM25 keyword match, entity match (clinical lexicon), temporal fit
+  (dates, latest/earliest), extraction confidence and source quality with a documented, configurable formula; metadata and date-range
+  filters; every hit shows its score breakdown. A small synthetic benchmark measures Precision@K, Recall@K and MRR.
 
 ## Repository layout
 
@@ -107,7 +110,6 @@ TEST_DATABASE_URL="postgresql+psycopg://user:PASSWORD@localhost:5432/testdb" pyt
 
 > The PostgreSQL integration tests **downgrade/upgrade the schema and delete all rows in `documents`** in
 > `TEST_DATABASE_URL`. Point it at a throwaway database, not data you care about.
-
 
 ## Safety and data
 

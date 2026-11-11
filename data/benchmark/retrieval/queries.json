@@ -1,0 +1,633 @@
+{
+ "description": "Synthetic retrieval benchmark. Judgments written by hand from the text of the synthetic documents (scripts/generate_retrieval_benchmark.py). No real patient data.",
+ "queries": [
+  {
+   "id": "q01",
+   "split": "dev",
+   "category": "entity",
+   "text": "HbA1c results",
+   "judgments": [
+    {
+     "document": "bench_a_visit_may.pdf",
+     "entity_name": "Hemoglobin A1c"
+    },
+    {
+     "document": "bench_b_followup_aug.pdf",
+     "entity_name": "Hemoglobin A1c"
+    },
+    {
+     "document": "bench_e_labs_sep.pdf",
+     "entity_name": "Hemoglobin A1c"
+    }
+   ]
+  },
+  {
+   "id": "q02",
+   "split": "test",
+   "category": "entity",
+   "text": "glycated hemoglobin",
+   "judgments": [
+    {
+     "document": "bench_a_visit_may.pdf",
+     "entity_name": "Hemoglobin A1c"
+    },
+    {
+     "document": "bench_b_followup_aug.pdf",
+     "entity_name": "Hemoglobin A1c"
+    },
+    {
+     "document": "bench_e_labs_sep.pdf",
+     "entity_name": "Hemoglobin A1c"
+    }
+   ]
+  },
+  {
+   "id": "q03",
+   "split": "dev",
+   "category": "synonym",
+   "text": "blood sugar",
+   "judgments": [
+    {
+     "document": "bench_a_visit_may.pdf",
+     "entity_name": "Fasting glucose"
+    },
+    {
+     "document": "bench_b_followup_aug.pdf",
+     "entity_name": "Fasting glucose"
+    },
+    {
+     "document": "bench_e_labs_sep.pdf",
+     "entity_name": "Fasting glucose"
+    }
+   ]
+  },
+  {
+   "id": "q04",
+   "split": "test",
+   "category": "synonym",
+   "text": "fasting blood glucose results",
+   "judgments": [
+    {
+     "document": "bench_a_visit_may.pdf",
+     "entity_name": "Fasting glucose"
+    },
+    {
+     "document": "bench_b_followup_aug.pdf",
+     "entity_name": "Fasting glucose"
+    },
+    {
+     "document": "bench_e_labs_sep.pdf",
+     "entity_name": "Fasting glucose"
+    }
+   ]
+  },
+  {
+   "id": "q05",
+   "split": "dev",
+   "category": "entity",
+   "text": "potassium level",
+   "judgments": [
+    {
+     "document": "bench_a_visit_may.pdf",
+     "entity_name": "Potassium"
+    },
+    {
+     "document": "bench_b_followup_aug.pdf",
+     "entity_name": "Potassium"
+    },
+    {
+     "document": "bench_e_labs_sep.pdf",
+     "entity_name": "Potassium"
+    }
+   ]
+  },
+  {
+   "id": "q06",
+   "split": "test",
+   "category": "entity",
+   "text": "sodium",
+   "judgments": [
+    {
+     "document": "bench_a_visit_may.pdf",
+     "entity_name": "Sodium"
+    },
+    {
+     "document": "bench_b_followup_aug.pdf",
+     "entity_name": "Sodium"
+    },
+    {
+     "document": "bench_e_labs_sep.pdf",
+     "entity_name": "Sodium"
+    }
+   ]
+  },
+  {
+   "id": "q07",
+   "split": "dev",
+   "category": "medication",
+   "text": "metformin dose",
+   "judgments": [
+    {
+     "document": "bench_a_visit_may.pdf",
+     "entity_name": "Metformin"
+    },
+    {
+     "document": "bench_b_followup_aug.pdf",
+     "entity_name": "Metformin"
+    }
+   ]
+  },
+  {
+   "id": "q08",
+   "split": "test",
+   "category": "medication",
+   "text": "atorvastatin",
+   "judgments": [
+    {
+     "document": "bench_b_followup_aug.pdf",
+     "entity_name": "Atorvastatin"
+    }
+   ]
+  },
+  {
+   "id": "q09",
+   "split": "dev",
+   "category": "entity",
+   "text": "blood pressure readings",
+   "judgments": [
+    {
+     "document": "bench_a_visit_may.pdf",
+     "entity_name": "Blood pressure"
+    },
+    {
+     "document": "bench_b_followup_aug.pdf",
+     "entity_name": "Blood pressure"
+    },
+    {
+     "document": "bench_c_cardiology.pdf",
+     "entity_name": "Blood pressure"
+    }
+   ]
+  },
+  {
+   "id": "q10",
+   "split": "test",
+   "category": "value",
+   "text": "BP 150/95",
+   "judgments": [
+    {
+     "document": "bench_a_visit_may.pdf",
+     "entity_name": "Blood pressure",
+     "value_text": "150/95"
+    }
+   ]
+  },
+  {
+   "id": "q11",
+   "split": "dev",
+   "category": "entity",
+   "text": "creatinine kidney function",
+   "judgments": [
+    {
+     "document": "bench_a_visit_may.pdf",
+     "entity_name": "Creatinine"
+    },
+    {
+     "document": "bench_e_labs_sep.pdf",
+     "entity_name": "Creatinine"
+    }
+   ]
+  },
+  {
+   "id": "q12",
+   "split": "test",
+   "category": "entity",
+   "text": "cholesterol",
+   "judgments": [
+    {
+     "document": "bench_e_labs_sep.pdf",
+     "entity_name": "Total cholesterol"
+    },
+    {
+     "document": "bench_b_followup_aug.pdf",
+     "entity_name": "LDL cholesterol"
+    }
+   ]
+  },
+  {
+   "id": "q13",
+   "split": "dev",
+   "category": "symptom",
+   "text": "chest pain",
+   "judgments": [
+    {
+     "document": "bench_a_visit_may.pdf",
+     "entity_name": "Chest pain"
+    },
+    {
+     "document": "bench_c_cardiology.pdf",
+     "entity_name": "Chest pain"
+    }
+   ]
+  },
+  {
+   "id": "q14",
+   "split": "test",
+   "category": "symptom",
+   "text": "fever",
+   "judgments": [
+    {
+     "document": "bench_d_discharge.pdf",
+     "entity_name": "Fever"
+    }
+   ]
+  },
+  {
+   "id": "q15",
+   "split": "dev",
+   "category": "symptom",
+   "text": "fatigue",
+   "judgments": [
+    {
+     "document": "bench_a_visit_may.pdf",
+     "entity_name": "Fatigue"
+    },
+    {
+     "document": "bench_b_followup_aug.pdf",
+     "entity_name": "Fatigue"
+    },
+    {
+     "document": "bench_f_scanned.pdf",
+     "entity_name": "Fatigue"
+    }
+   ]
+  },
+  {
+   "id": "q16",
+   "split": "test",
+   "category": "symptom",
+   "text": "weight loss",
+   "judgments": [
+    {
+     "document": "bench_f_scanned.pdf",
+     "entity_name": "Weight loss"
+    }
+   ]
+  },
+  {
+   "id": "q17",
+   "split": "dev",
+   "category": "temporal",
+   "text": "HbA1c on 12-Aug-2026",
+   "judgments": [
+    {
+     "document": "bench_b_followup_aug.pdf",
+     "entity_name": "Hemoglobin A1c",
+     "date_iso": "2026-08-12"
+    }
+   ]
+  },
+  {
+   "id": "q18",
+   "split": "test",
+   "category": "temporal",
+   "text": "HbA1c in May 2026",
+   "judgments": [
+    {
+     "document": "bench_a_visit_may.pdf",
+     "entity_name": "Hemoglobin A1c",
+     "date_iso": "2026-05-03"
+    }
+   ]
+  },
+  {
+   "id": "q19",
+   "split": "dev",
+   "category": "temporal",
+   "text": "latest HbA1c",
+   "judgments": [
+    {
+     "document": "bench_e_labs_sep.pdf",
+     "entity_name": "Hemoglobin A1c",
+     "date_iso": "2026-09-15"
+    }
+   ]
+  },
+  {
+   "id": "q20",
+   "split": "test",
+   "category": "temporal",
+   "text": "earliest potassium",
+   "judgments": [
+    {
+     "document": "bench_a_visit_may.pdf",
+     "entity_name": "Potassium",
+     "date_iso": "2026-05-03"
+    }
+   ]
+  },
+  {
+   "id": "q21",
+   "split": "dev",
+   "category": "temporal",
+   "text": "potassium in August 2026",
+   "judgments": [
+    {
+     "document": "bench_b_followup_aug.pdf",
+     "entity_name": "Potassium",
+     "date_iso": "2026-08-12"
+    }
+   ]
+  },
+  {
+   "id": "q22",
+   "split": "test",
+   "category": "temporal",
+   "text": "most recent fasting glucose",
+   "judgments": [
+    {
+     "document": "bench_e_labs_sep.pdf",
+     "entity_name": "Fasting glucose",
+     "date_iso": "2026-09-15"
+    }
+   ]
+  },
+  {
+   "id": "q23",
+   "split": "dev",
+   "category": "temporal",
+   "text": "blood pressure on 21-Jun-2026",
+   "judgments": [
+    {
+     "document": "bench_c_cardiology.pdf",
+     "entity_name": "Blood pressure",
+     "date_iso": "2026-06-21"
+    }
+   ]
+  },
+  {
+   "id": "q24",
+   "split": "test",
+   "category": "temporal",
+   "text": "latest oxygen saturation",
+   "judgments": [
+    {
+     "document": "bench_d_discharge.pdf",
+     "entity_name": "Oxygen saturation",
+     "date_iso": "2026-09-02"
+    }
+   ]
+  },
+  {
+   "id": "q25",
+   "split": "dev",
+   "category": "entity",
+   "text": "oxygen saturation",
+   "judgments": [
+    {
+     "document": "bench_d_discharge.pdf",
+     "entity_name": "Oxygen saturation"
+    }
+   ]
+  },
+  {
+   "id": "q26",
+   "split": "test",
+   "category": "temporal",
+   "text": "findings on 30-Aug-2026",
+   "judgments": [
+    {
+     "document": "bench_d_discharge.pdf",
+     "entity_type": "lab_result",
+     "date_iso": "2026-08-30"
+    },
+    {
+     "document": "bench_d_discharge.pdf",
+     "entity_type": "vital_sign",
+     "date_iso": "2026-08-30"
+    }
+   ]
+  },
+  {
+   "id": "q27",
+   "split": "dev",
+   "category": "multi_document",
+   "text": "penicillin allergy",
+   "judgments": [
+    {
+     "document": "bench_c_cardiology.pdf",
+     "entity_name": "Penicillin"
+    }
+   ]
+  },
+  {
+   "id": "q28",
+   "split": "test",
+   "category": "multi_document",
+   "text": "family history of myocardial infarction",
+   "judgments": [
+    {
+     "document": "bench_c_cardiology.pdf",
+     "entity_name": "Myocardial infarction"
+    }
+   ]
+  },
+  {
+   "id": "q29",
+   "split": "dev",
+   "category": "medication",
+   "text": "warfarin and INR",
+   "judgments": [
+    {
+     "document": "bench_c_cardiology.pdf",
+     "entity_name": "Warfarin"
+    },
+    {
+     "document": "bench_c_cardiology.pdf",
+     "entity_name": "INR"
+    }
+   ]
+  },
+  {
+   "id": "q30",
+   "split": "test",
+   "category": "medication",
+   "text": "amoxicillin",
+   "judgments": [
+    {
+     "document": "bench_d_discharge.pdf",
+     "entity_name": "Amoxicillin"
+    }
+   ]
+  },
+  {
+   "id": "q31",
+   "split": "dev",
+   "category": "value",
+   "text": "HbA1c 7.8",
+   "judgments": [
+    {
+     "document": "bench_b_followup_aug.pdf",
+     "entity_name": "Hemoglobin A1c",
+     "value_text": "7.8"
+    }
+   ]
+  },
+  {
+   "id": "q32",
+   "split": "test",
+   "category": "value",
+   "text": "troponin",
+   "judgments": [
+    {
+     "document": "bench_c_cardiology.pdf",
+     "entity_name": "Troponin I"
+    }
+   ]
+  },
+  {
+   "id": "q33",
+   "split": "dev",
+   "category": "semantic_gap",
+   "text": "inflammation marker",
+   "judgments": [
+    {
+     "document": "bench_d_discharge.pdf",
+     "entity_name": "C-reactive protein"
+    }
+   ]
+  },
+  {
+   "id": "q34",
+   "split": "test",
+   "category": "semantic_gap",
+   "text": "blood thinner",
+   "judgments": [
+    {
+     "document": "bench_c_cardiology.pdf",
+     "entity_name": "Warfarin"
+    }
+   ]
+  },
+  {
+   "id": "q35",
+   "split": "dev",
+   "category": "semantic_gap",
+   "text": "heart rhythm problem",
+   "judgments": [
+    {
+     "document": "bench_c_cardiology.pdf",
+     "entity_name": "Atrial fibrillation"
+    }
+   ]
+  },
+  {
+   "id": "q36",
+   "split": "test",
+   "category": "semantic_gap",
+   "text": "thyroid medication",
+   "judgments": [
+    {
+     "document": "bench_f_scanned.pdf",
+     "entity_name": "Levothyroxine"
+    }
+   ]
+  },
+  {
+   "id": "q37",
+   "split": "dev",
+   "category": "condition",
+   "text": "high blood pressure",
+   "judgments": [
+    {
+     "document": "bench_c_cardiology.pdf",
+     "entity_name": "Hypertension"
+    }
+   ]
+  },
+  {
+   "id": "q38",
+   "split": "test",
+   "category": "condition",
+   "text": "pneumonia",
+   "judgments": [
+    {
+     "document": "bench_d_discharge.pdf",
+     "entity_name": "Pneumonia"
+    }
+   ]
+  },
+  {
+   "id": "q39",
+   "split": "dev",
+   "category": "synonym",
+   "text": "white blood cells",
+   "judgments": [
+    {
+     "document": "bench_d_discharge.pdf",
+     "entity_name": "White blood cell count"
+    }
+   ]
+  },
+  {
+   "id": "q40",
+   "split": "test",
+   "category": "synonym",
+   "text": "heart rate pulse",
+   "judgments": [
+    {
+     "document": "bench_c_cardiology.pdf",
+     "entity_name": "Heart rate"
+    }
+   ]
+  },
+  {
+   "id": "q41",
+   "split": "test",
+   "category": "ocr",
+   "text": "thyroid stimulating hormone TSH",
+   "judgments": [
+    {
+     "document": "bench_f_scanned.pdf",
+     "entity_name": "Thyroid stimulating hormone"
+    }
+   ]
+  },
+  {
+   "id": "q42",
+   "split": "dev",
+   "category": "ocr",
+   "text": "levothyroxine dose",
+   "judgments": [
+    {
+     "document": "bench_f_scanned.pdf",
+     "entity_name": "Levothyroxine"
+    }
+   ]
+  },
+  {
+   "id": "q43",
+   "split": "test",
+   "category": "table",
+   "text": "lipid panel triglycerides",
+   "judgments": [
+    {
+     "document": "bench_b_followup_aug.pdf",
+     "entity_name": "Triglycerides"
+    }
+   ]
+  },
+  {
+   "id": "q44",
+   "split": "dev",
+   "category": "symptom",
+   "text": "shortness of breath",
+   "judgments": [
+    {
+     "document": "bench_c_cardiology.pdf",
+     "entity_name": "Shortness of breath"
+    }
+   ]
+  }
+ ]
+}
