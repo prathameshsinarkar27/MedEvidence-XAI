@@ -8,6 +8,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from app.core.config import get_settings
 from app.db.session import get_session, get_session_factory
+from app.schemas.hybrid import HybridResponse, RankingConfig
 from app.schemas.evidence_index import (
     DocumentIndexStatus,
     EntityList,
@@ -20,6 +21,7 @@ from app.schemas.evidence_index import (
 )
 from app.services import documents as document_service
 from app.services import evidence_index as index_service
+from app.services import hybrid_retrieval as hybrid_service
 from evidence_index import EmbeddingUnavailableError, VectorBackendUnavailableError
 
 documents_router = APIRouter(prefix="/documents", tags=["evidence-index"])
@@ -104,6 +106,60 @@ def search_evidence(
             session, settings, query, top_k=top_k, min_score=min_score, document_id=document_id,
             page_number=page_number, entity_type=entity_type, entity_name=entity_name, modality=modality,
             assertion=assertion, min_confidence=min_confidence)
+    except EmbeddingUnavailableError as exc:
+        raise _error(503, "embedding_unavailable", str(exc)) from exc
+    except VectorBackendUnavailableError as exc:
+        raise _error(503, "vector_backend_unavailable", str(exc)) from exc
+
+
+@router.get("/ranking-config", response_model=RankingConfig, summary="Ranking formula, components and the configured weights")
+def get_ranking_config() -> RankingConfig:
+    return hybrid_service.ranking_config(get_settings())
+
+
+@router.get("/hybrid-search", response_model=HybridResponse,
+            summary="Hybrid retrieval: semantic + keyword + entity + temporal + confidence + source, with a score breakdown")
+def hybrid_search(
+    q: str = Query(min_length=1, max_length=500),
+    top_k: int = Query(default=10, ge=1),
+    mode: Literal["hybrid", "semantic", "keyword", "entity"] = "hybrid",
+    w_semantic: float | None = Query(default=None, ge=0, le=100),
+    w_keyword: float | None = Query(default=None, ge=0, le=100),
+    w_entity: float | None = Query(default=None, ge=0, le=100),
+    w_temporal: float | None = Query(default=None, ge=0, le=100),
+    w_confidence: float | None = Query(default=None, ge=0, le=100),
+    w_source: float | None = Query(default=None, ge=0, le=100),
+    document_id: uuid.UUID | None = None,
+    page_number: int | None = Query(default=None, ge=1),
+    entity_type: EntityType | None = None,
+    entity_name: str | None = Query(default=None, max_length=200),
+    modality: Modality | None = None,
+    assertion: Assertion | None = None,
+    min_confidence: float | None = Query(default=None, ge=0, le=1),
+    date_from: str | None = Query(default=None, pattern=r"^\d{4}-\d{2}-\d{2}$", description="Evidence date >= (YYYY-MM-DD)"),
+    date_to: str | None = Query(default=None, pattern=r"^\d{4}-\d{2}-\d{2}$", description="Evidence date <= (YYYY-MM-DD)"),
+    session: Session = Depends(get_session),
+) -> HybridResponse:
+    settings = get_settings()
+    query = q.strip()
+    if not query:
+        raise _error(422, "empty_query", "The query is empty.")
+    if top_k > settings.search_max_top_k:
+        raise _error(422, "top_k_too_large", f"top_k must be at most {settings.search_max_top_k}.")
+    for value in (date_from, date_to):
+        if value:
+            try:
+                __import__("datetime").date.fromisoformat(value)
+            except ValueError:
+                raise _error(422, "invalid_date", "Dates must be real calendar dates (YYYY-MM-DD).")
+    try:
+        return hybrid_service.search(
+            session, settings, query, top_k=top_k, mode=mode,
+            overrides={"semantic": w_semantic, "keyword": w_keyword, "entity": w_entity, "temporal": w_temporal,
+                       "confidence": w_confidence, "source": w_source},
+            filters={"document_id": document_id, "page_number": page_number, "entity_type": entity_type,
+                     "entity_name": entity_name, "modality": modality, "assertion": assertion,
+                     "min_confidence": min_confidence, "date_from": date_from, "date_to": date_to})
     except EmbeddingUnavailableError as exc:
         raise _error(503, "embedding_unavailable", str(exc)) from exc
     except VectorBackendUnavailableError as exc:

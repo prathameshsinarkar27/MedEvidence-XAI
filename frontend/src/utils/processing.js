@@ -99,4 +99,4 @@ export const CLINICAL_NOTE =
 
 // Phase 6
 export const INDEX_NOTE =
-  "Search returns stored evidence ranked by similarity to your query. Scores are similarities, not probabilities, and retrieval quality has not been evaluated.";
+  "Search returns stored evidence, ranked by the selected method (hybrid: a weighted sum of semantic, keyword, entity, date, confidence and source scores; or similarity only). Scores order results; they are not probabilities. Ranking quality is only measured on a small synthetic benchmark (docs/evaluation-retrieval.md); otherwise not yet evaluated.";

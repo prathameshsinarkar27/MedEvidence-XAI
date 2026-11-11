@@ -75,6 +75,8 @@ function query(params) {
 }
 export const searchEvidence = (params, opts) => request(`/evidence/search?${query(params)}`, opts);
 export const browseEvidence = (params, opts) => request(`/evidence?${query(params)}`, opts);
+export const hybridSearch = (params, opts) => request(`/evidence/hybrid-search?${query(params)}`, opts);
+export const getRankingConfig = (opts) => request("/evidence/ranking-config", opts);
 export const listEntities = (params = {}, opts) => request(`/evidence/entities?${query(params)}`, opts);
 
 // fetch() cannot report upload progress, so uploads use XMLHttpRequest.
