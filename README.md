@@ -9,30 +9,28 @@ Final-year B.Tech (CSE, AI & ML) project. The long-term goal is to turn uploaded
 traceable evidence and answer questions only when the evidence supports them:
 `answer → evidence → source document → page/region → confidence → reason`.
 
-## Current status: hybrid retrieval and evidence ranking
-
-> **New here? Start with [`docs/execution-steps.md`](docs/execution-steps.md)**, the step-by-step guide for
-> installing, running and checking.
+## Current status: question understanding and evidence verification
 
 - **1:** repository layout, FastAPI backend, React + Vite + Tailwind frontend, `.env` configuration,
   PostgreSQL connection, Alembic migrations, health-check API, status dashboard, logging.
+
 - **2:** secure PDF upload (extension + MIME type + `%PDF-` signature + size checks, safe filenames,
   UUID storage names), `documents` table, upload/list/metadata APIs, upload UI with progress, document list and
   metadata panel.
 
 - **3:** page-level text extraction (PyMuPDF, pdfplumber fallback), detection of pages with little or no text,
   Tesseract OCR fallback with clear setup errors, per-page method/status, processing status API, page content API,
-  extracted-text viewer.
+  extracted-text viewer. .
 
 - **4:** table detection (rows, columns, cells, page, table ID, source box), embedded-image extraction (metadata,
   file, page, placement box), optional OCR of text printed inside images, a page preview with the source region
   highlighted, and APIs/UI to inspect tables, images, source page and region. Images are never interpreted (no
-  medical-image analysis).
+  medical-image analysis). 
 
 - **5:** rule- and lexicon-based extraction of lab results, vital signs, medications, conditions, symptoms and dates
   from text, OCR text, tables and image-OCR text, with negation/uncertainty/family-history handling, normalisation that keeps
   the original text, a `ClinicalEvidence` model with exact source text, offsets, page region and a heuristic confidence, APIs,
-  and a viewer. No trained model.
+  and a viewer. No trained model. 
 
 - **6:** every extracted evidence item gets a vector (stored in PostgreSQL, searched with exact FAISS/NumPy), search and
   retrieval APIs (by query, entity, document, page, with filters) that return evidence with full provenance, and an Evidence
@@ -42,6 +40,13 @@ traceable evidence and answer questions only when the evidence supports them:
 - **7:** hybrid retrieval that fuses semantic similarity, BM25 keyword match, entity match (clinical lexicon), temporal fit
   (dates, latest/earliest), extraction confidence and source quality with a documented, configurable formula; metadata and date-range
   filters; every hit shows its score breakdown. A small synthetic benchmark measures Precision@K, Recall@K and MRR.
+
+
+- **8:** question understanding (type, entities, dates, constraints) and evidence verification: every retrieved item gets a
+  transparent verification score, conflicts are classified as temporal change / measurement variation / possible contradiction (a
+  different historical value is not a contradiction), and each question gets an evidence state (supported, partially supported,
+  conflicting, insufficient evidence). **It does not write answers.** 
+
 
 ## Repository layout
 
@@ -110,6 +115,12 @@ TEST_DATABASE_URL="postgresql+psycopg://user:PASSWORD@localhost:5432/testdb" pyt
 
 > The PostgreSQL integration tests **downgrade/upgrade the schema and delete all rows in `documents`** in
 > `TEST_DATABASE_URL`. Point it at a throwaway database, not data you care about.
+
+## Documentation
+
+See [`docs/`](docs/): [execution steps](docs/execution-steps.md), project overview, architecture, API, database design,
+developer guide, [PDF extraction & OCR](docs/pdf-extraction-ocr.md), [multimodal processing](docs/multimodal-processing.md), [clinical information extraction](docs/clinical-information-extraction.md), [evidence model](docs/evidence-model.md), [ML methodology](docs/ml-methodology.md), safety, limitations, and
+[changelog](docs/changelog.md).
 
 ## Safety and data
 
