@@ -14,6 +14,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from document_processing import ProcessingConfig  # repo root is put on sys.path by app/__init__.py
 from evidence_index import EmbedderConfig
+from evidence_qa import OpenAICompatibleProvider
 from evidence_reasoning import ReasoningConfig, VerifyWeights
 from hybrid_retrieval import Weights
 
@@ -117,6 +118,15 @@ class Settings(BaseSettings):
     conflict_tolerance_medication: float = Field(default=0.0, ge=0, le=1)
     conflict_tolerance_default: float = Field(default=0.05, ge=0, le=1)
 
+    # Phase 9: answer generation. "extractive" (default) needs no model; "openai_compatible" calls an LLM endpoint (local or external).
+    llm_provider: Literal["extractive", "openai_compatible"] = "extractive"
+    llm_base_url: str = "http://localhost:11434/v1"  # e.g. Ollama; any OpenAI-compatible /chat/completions server
+    llm_model: str = ""
+    llm_api_key: str | None = None  # never returned by the API, never logged
+    llm_timeout_seconds: float = Field(default=60.0, gt=0, le=600)
+    llm_max_tokens: int = Field(default=600, ge=50, le=4000)
+    llm_allow_external: bool = False  # must be true to send evidence text to a non-local endpoint
+
     @field_validator("ocr_languages")
     @classmethod
     def _validate_ocr_languages(cls, value: str) -> str:
@@ -188,6 +198,15 @@ class Settings(BaseSettings):
             min_semantic_no_entity=self.verify_min_semantic_no_entity, undated_temporal_score=self.verify_undated_temporal_score,
             tolerance_lab=self.conflict_tolerance_lab, tolerance_vital=self.conflict_tolerance_vital,
             tolerance_medication=self.conflict_tolerance_medication, tolerance_default=self.conflict_tolerance_default)
+
+    @property
+    def llm(self):
+        """The configured answer provider, or None for the deterministic extractive composer."""
+        if self.llm_provider != "openai_compatible":
+            return None
+        return OpenAICompatibleProvider(
+            base_url=self.llm_base_url.strip(), model=self.llm_model.strip(), api_key=(self.llm_api_key or None),
+            timeout=self.llm_timeout_seconds, max_tokens=self.llm_max_tokens, allow_external=self.llm_allow_external)
 
     @property
     def max_upload_size_bytes(self) -> int:
