@@ -2,6 +2,7 @@ import { useState } from "react";
 import Dashboard from "./components/Dashboard.jsx";
 import DocumentsPage from "./components/DocumentsPage.jsx";
 import EvidenceExplorer from "./components/EvidenceExplorer.jsx";
+import QAWorkspace from "./components/QAWorkspace.jsx";
 import QuestionAnalysis from "./components/QuestionAnalysis.jsx";
 
 const DISCLAIMER =
@@ -11,6 +12,7 @@ const TABS = [
   ["dashboard", "Dashboard"],
   ["documents", "Documents"],
   ["evidence", "Evidence Explorer"],
+  ["ask", "Ask a Question"],
   ["question", "Question Analysis"],
 ];
 
@@ -23,7 +25,7 @@ export default function App() {
         <div className="mx-auto max-w-5xl px-6 pt-4">
           <h1 className="text-lg font-semibold">MedEvidence-XAI</h1>
           <p className="text-xs text-slate-500">
-            Evidence-grounded medical document understanding &mdash; Phase 8: question understanding and evidence verification
+            Evidence-grounded medical document understanding &mdash; Phase 9: evidence-grounded question answering and explainability
           </p>
           <nav className="mt-3 flex gap-1" aria-label="Main">
             {TABS.map(([id, label]) => (
@@ -49,7 +51,7 @@ export default function App() {
         <div role="note" className="rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
           {DISCLAIMER}
         </div>
-        {tab === "dashboard" ? <Dashboard /> : tab === "documents" ? <DocumentsPage /> : tab === "evidence" ? <EvidenceExplorer /> : <QuestionAnalysis />}
+        {tab === "dashboard" ? <Dashboard /> : tab === "documents" ? <DocumentsPage /> : tab === "evidence" ? <EvidenceExplorer /> : tab === "ask" ? <QAWorkspace /> : <QuestionAnalysis />}
       </main>
     </div>
   );

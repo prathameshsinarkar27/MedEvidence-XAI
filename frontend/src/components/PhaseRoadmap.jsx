@@ -1,4 +1,4 @@
-// Static description of the development plan. Only Phases 1-8 exist; nothing here implies
+// Static description of the development plan. Only Phases 1-9 exist; nothing here implies
 // that later phases are implemented or evaluated.
 const PHASES = [
   ["1", "Foundation + project skeleton", "done"],
@@ -9,7 +9,7 @@ const PHASES = [
   ["6", "Evidence storage, index + semantic retrieval", "done"],
   ["7", "Hybrid retrieval + ranking", "done"],
   ["8", "Question understanding + verification", "done"],
-  ["9", "Evidence-grounded QA + explainability", "planned"],
+  ["9", "Evidence-grounded QA + explainability", "done"],
   ["10", "Evaluation, robustness + final platform", "planned"],
 ];
 

@@ -81,6 +81,9 @@ export const getRankingConfig = (opts) => request("/evidence/ranking-config", op
 export const verifyQuestion = (params, opts) => request(`/reasoning/verify?${query(params)}`, opts);
 export const understandQuestion = (params, opts) => request(`/reasoning/understand?${query(params)}`, opts);
 export const getReasoningConfig = (opts) => request("/reasoning/config", opts);
+// Phase 9: evidence-grounded answer + explanation
+export const askQuestion = (params, opts) => request(`/qa/answer?${query(params)}`, opts);
+export const getQAConfig = (opts) => request("/qa/config", opts);
 export const listEntities = (params = {}, opts) => request(`/evidence/entities?${query(params)}`, opts);
 
 // fetch() cannot report upload progress, so uploads use XMLHttpRequest.

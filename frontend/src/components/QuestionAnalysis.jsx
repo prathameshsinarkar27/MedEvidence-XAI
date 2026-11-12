@@ -98,7 +98,7 @@ function StateCard({ s, counts }) {
         contradiction(s) · {counts.temporal_change} temporal change(s)
         {s.claim_assessment ? ` · the value stated in the question is ${s.claim_assessment} by the evidence` : ""}
       </p>
-      <p className="mt-2 text-xs opacity-80">This describes the evidence, not the truth of any answer. No answer is generated in this phase.</p>
+      <p className="mt-2 text-xs opacity-80">This describes the evidence, not the truth of any answer. Answers are generated in the "Ask a Question" tab.</p>
     </section>
   );
 }

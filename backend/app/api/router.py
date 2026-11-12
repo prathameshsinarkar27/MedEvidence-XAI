@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api import clinical, documents, evidence, health, multimodal, processing, reasoning
+from app.api import clinical, documents, evidence, health, multimodal, processing, qa, reasoning
 
 api_router = APIRouter(prefix="/api")
 api_router.include_router(health.router)
@@ -12,3 +12,4 @@ api_router.include_router(clinical.router)
 api_router.include_router(evidence.documents_router)
 api_router.include_router(evidence.router)
 api_router.include_router(reasoning.router)
+api_router.include_router(qa.router)
