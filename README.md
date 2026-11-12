@@ -9,7 +9,8 @@ Final-year B.Tech (CSE, AI & ML) project. The long-term goal is to turn uploaded
 traceable evidence and answer questions only when the evidence supports them:
 `answer → evidence → source document → page/region → confidence → reason`.
 
-## Current status: question understanding and evidence verification
+## Current status: Phase 9 — evidence-grounded question answering and explainability
+
 
 - **1:** repository layout, FastAPI backend, React + Vite + Tailwind frontend, `.env` configuration,
   PostgreSQL connection, Alembic migrations, health-check API, status dashboard, logging.
@@ -20,7 +21,7 @@ traceable evidence and answer questions only when the evidence supports them:
 
 - **3:** page-level text extraction (PyMuPDF, pdfplumber fallback), detection of pages with little or no text,
   Tesseract OCR fallback with clear setup errors, per-page method/status, processing status API, page content API,
-  extracted-text viewer. .
+  extracted-text viewer. 
 
 - **4:** table detection (rows, columns, cells, page, table ID, source box), embedded-image extraction (metadata,
   file, page, placement box), optional OCR of text printed inside images, a page preview with the source region
@@ -35,17 +36,22 @@ traceable evidence and answer questions only when the evidence supports them:
 - **6:** every extracted evidence item gets a vector (stored in PostgreSQL, searched with exact FAISS/NumPy), search and
   retrieval APIs (by query, entity, document, page, with filters) that return evidence with full provenance, and an Evidence
   Explorer UI. The default embedding is offline and **lexical**; real semantic search needs the optional `sentence-transformers`
-  backend.
+  backend. 
 
 - **7:** hybrid retrieval that fuses semantic similarity, BM25 keyword match, entity match (clinical lexicon), temporal fit
   (dates, latest/earliest), extraction confidence and source quality with a documented, configurable formula; metadata and date-range
   filters; every hit shows its score breakdown. A small synthetic benchmark measures Precision@K, Recall@K and MRR.
 
-
 - **8:** question understanding (type, entities, dates, constraints) and evidence verification: every retrieved item gets a
   transparent verification score, conflicts are classified as temporal change / measurement variation / possible contradiction (a
   different historical value is not a contradiction), and each question gets an evidence state (supported, partially supported,
   conflicting, insufficient evidence). **It does not write answers.** 
+
+- **9:** evidence-grounded answers: every claim cites evidence units (document, page, region), confidence is split into model
+  confidence / evidence confidence / answer support (never medical certainty), conflicts are reported not resolved, and when the
+  documents are insufficient the system answers exactly "The uploaded documents do not contain sufficient evidence to answer this
+  question." Works offline with a deterministic extractive composer; an optional local or external OpenAI-compatible LLM can draft the
+  wording, validated by a grounding guard. **Ask a Question** tab. 
 
 
 ## Repository layout
